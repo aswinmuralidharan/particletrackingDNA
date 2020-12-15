@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import os
 import string
 
+
 plt.style.use('aswinplotstyle')
 
 os.environ['PATH'] = os.environ['PATH'] + ':/Library/TeX/texbin'

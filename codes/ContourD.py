@@ -13,6 +13,10 @@ import os
 from scipy.optimize import curve_fit
 from scipy.stats import kde
 import string
+from pylab import plot, show, savefig, xlim, figure, \
+                 ylim, legend, boxplot, setp, axes
+from matplotlib.ticker import MaxNLocator
+from scipy import stats
 
 plt.style.use('aswinplotstyle')
 
@@ -190,6 +194,21 @@ def imsd(filename, mpp, fps, video, directory,min_time, max_time, plotindividual
         resultssub = []   
     return resultsmsd, resultstraj, alpha,resultssuper, resultssub, alphasuper, alphasub
 
+def setBoxColors(bp):
+    setp(bp['boxes'][0], color='blue')
+    setp(bp['caps'][0], color='blue')
+    setp(bp['caps'][1], color='blue')
+    setp(bp['whiskers'][0], color='blue')
+    setp(bp['whiskers'][1], color='blue')
+    setp(bp['medians'][0], color='blue')
+
+    setp(bp['boxes'][1], color='red')
+    setp(bp['caps'][2], color='red')
+    setp(bp['caps'][3], color='red')
+    setp(bp['whiskers'][2], color='red')
+    setp(bp['whiskers'][3], color='red')
+    setp(bp['medians'][1], color='red')
+    
 
 """
 Main code
@@ -201,7 +220,7 @@ max_lagtime = 100
 bpc = ['100bp' , '250bp', '500bp']
 bpcs = ['100 bp' , '250 bp', '500 bp']
 fig1, ax = plt.subplots(2,3, figsize=(3.375*2,3.375*4/3))
-fig2, ax2 = plt.subplots(2,1, figsize=(3.375,3.375*2))
+fig2, ax2 = plt.subplots(2,1, figsize=(3.375,3.375*1.2))
 i=0
 for bp in bpc:
     Filepath = '/Volumes/Samsung_T5/Experimental Data/Hans'
@@ -235,13 +254,13 @@ for bp in bpc:
     Trajcollected_df = Trajcollected_df.dropna(axis = 'columns', how = 'all')
     Alphacollected_df = pd.concat(alphacollected)
     totaltracks = len(MSDcollected_df.columns)
-    alpha_his250 = Alphacollected_df[1].to_numpy()
+    D_his = Alphacollected_df[1].to_numpy()
     alpha_his = Alphacollected_df[0].to_numpy()
-    k = kde.gaussian_kde([np.log10(alpha_his250),alpha_his])
+    k = kde.gaussian_kde([np.log10(D_his),alpha_his])
     xi, yi = np.mgrid[-4:0.1:0.05, 0:2.1:0.025]
     zi = k(np.vstack([xi.flatten(), yi.flatten()]))
     his1 = ax[0,i].contourf(xi,yi,zi.reshape(xi.shape), 200,cmap = 'Spectral_r', alpha = 1)
-    ax[0,i].scatter(np.log10(alpha_his250), alpha_his, marker = '.', color = 'k', s= 1 )
+    ax[0,i].scatter(np.log10(D_his), alpha_his, marker = '.', color = 'k', s= 1 )
     ax[0,i].set(xlabel=r'$\log (D_{\mathrm{app}})$ ',
                ylabel=r'$\alpha_1$')
     ax[0,i].set_yticks(np.arange(0, 2.01, step=0.5))
@@ -254,6 +273,15 @@ for bp in bpc:
     ax[0,i].text(0.95, 0.95, bps, verticalalignment='top', horizontalalignment='right',
              multialignment="left",
              transform=ax[0,i].transAxes, color = 'white')
+    if i == 0 :
+        D100_1 = D_his
+        A100_1 = alpha_his
+    elif i == 1 :
+        D250_1 = D_his
+        A250_1 = alpha_his
+    elif i == 2 :
+        D500_1 = D_his
+        A500_1 = alpha_his
     i+=1
 
 
@@ -290,13 +318,13 @@ for bp in bpc:
     Trajcollected_df = Trajcollected_df.dropna(axis = 'columns', how = 'all')
     Alphacollected_df = pd.concat(alphacollected)
     totaltracks = len(MSDcollected_df.columns)
-    alpha_his250 = Alphacollected_df[1].to_numpy()
+    D_his = Alphacollected_df[1].to_numpy()
     alpha_his = Alphacollected_df[0].to_numpy()
-    k = kde.gaussian_kde([np.log10(alpha_his250),alpha_his])
+    k = kde.gaussian_kde([np.log10(D_his),alpha_his])
     xi, yi = np.mgrid[-4:0.1:0.05, 0:2.1:0.025]
     zi = k(np.vstack([xi.flatten(), yi.flatten()]))
     his1 = ax[1,i].contourf(xi,yi,zi.reshape(xi.shape), 200,cmap = 'Spectral_r', alpha = 1)
-    ax[1,i].scatter(np.log10(alpha_his250), alpha_his, marker = '.', color = 'k', s= 1 )
+    ax[1,i].scatter(np.log10(D_his), alpha_his, marker = '.', color = 'k', s= 1 )
     ax[1,i].set(xlabel=r'$\log (D_{\mathrm{app}})$ ',
                ylabel=r'$\alpha_2$')
     ax[1,i].set_yticks(np.arange(0, 2.01, step=0.5))
@@ -309,6 +337,15 @@ for bp in bpc:
     ax[1,i].text(0.95, 0.95, bps, verticalalignment='top', horizontalalignment='right',
              multialignment="left",
              transform=ax[1,i].transAxes, color = 'white')
+    if i == 0 :
+        D100_2 = D_his
+        A100_2 = alpha_his
+    elif i == 1 :
+        D250_2 = D_his
+        A250_2 = alpha_his
+    elif i ==2 :
+        D500_2 = D_his
+        A500_2 = alpha_his
     i+=1
 
 axlab =0
@@ -317,5 +354,83 @@ for n, row in enumerate(ax):
         ax.text(-0.2, 1, r'\textbf{'+ string.ascii_lowercase[axlab]+'}', transform=ax.transAxes, 
             size=8, weight='bold')
         axlab+=1
-plt.tight_layout()
+fig1.tight_layout()
 fig1.savefig(directory3 + '/contour2.pdf')
+
+bp1 = ax2[0].boxplot([D100_1, D100_2], positions = [1, 2], widths = 0.6, showfliers = False)
+setBoxColors(bp1)
+
+bp1 = ax2[0].boxplot([D250_1, D250_2], positions = [4, 5], widths = 0.6, showfliers = False)
+setBoxColors(bp1)
+
+bp1 = ax2[0].boxplot([D500_1, D500_2], positions = [7, 8], widths = 0.6, showfliers = False)
+setBoxColors(bp1)
+
+ax2[0].yaxis.set_ticks_position('both')
+ax2[0].xaxis.set_ticks_position('both')
+ax2[0].tick_params(which='both', axis="both", direction="in")
+ax2[0].set_yscale('log')
+ax2[0].set_ylim(1e-4,0.1)
+ax2[0].set_xticklabels(['100 bp', '250 bp', '500 bp'])
+ax2[0].set_xticks([1.5, 4.5, 7.5])
+ax2[0].set(ylabel=r'$D_{\mathrm{app}}$ ')
+ax2[0].set_xlim(0,9)
+bp2 = ax2[1].boxplot([A100_1, A100_2], positions = [1, 2], widths = 0.6, showfliers = False)
+setBoxColors(bp2)
+
+bp2 = ax2[1].boxplot([A250_1, A250_2], positions = [4, 5], widths = 0.6, showfliers = False)
+setBoxColors(bp2)
+
+bp2 = ax2[1].boxplot([A500_1, A500_2], positions = [7, 8], widths = 0.6, showfliers = False)
+setBoxColors(bp2)
+
+ax2[1].yaxis.set_ticks_position('both')
+ax2[1].xaxis.set_ticks_position('both')
+ax2[1].tick_params(which='both', axis="both", direction="in")
+ax2[1].set_yscale('linear')
+ax2[1].set_ylim(0,2)
+ax2[1].set_xticklabels(['100 bp', '250 bp', '500 bp'])
+ax2[1].set_xticks([1.5, 4.5, 7.5])
+ax2[1].set(ylabel=r'$\alpha$')
+ax2[1].set_xlim(0,9)
+my_locator = MaxNLocator(6)
+ax2[1].yaxis.set_major_locator(my_locator)
+hB, = ax2[1].plot([1,1],'b-')
+hR, = ax2[1].plot([1,1],'r-')
+ax2[1].legend((hB, hR),(r'$0<\Updelta t\mathrm{ \: (s) }<1$', r'$1<\Updelta t \mathrm{ \: (s) }<10$'),frameon = False,loc ='upper right')
+hB.set_visible(False)
+hR.set_visible(False)
+hB, = ax2[0].plot([1,1],'b-')
+hR, = ax2[0].plot([1,1],'r-')
+ax2[0].legend((hB, hR),(r'$0<\Updelta t\mathrm{ \: (s) }<1$', r'$1<\Updelta t \mathrm{ \: (s) }<10$'),frameon = False,loc ='upper right')
+hB.set_visible(False)
+hR.set_visible(False)
+
+axlab =0
+for n,ax in enumerate(ax2): 
+    ax.text(-0.15, 1, r'\textbf{'+ string.ascii_lowercase[axlab]+'}', transform=ax.transAxes, 
+            size=8, weight='bold')
+    axlab+=1
+        
+fig2.tight_layout()
+fig2.savefig(directory3 + '/boxplot.pdf')
+print(stats.ttest_ind(A100_1, A100_2))
+print(stats.ttest_ind(A250_1, A250_2))
+print(stats.ttest_ind(A500_1, A500_2))
+print(stats.ttest_ind(A100_1, A250_1))
+print(stats.ttest_ind(A100_1, A500_1))
+print(stats.ttest_ind(A250_1, A500_1))
+print(stats.ttest_ind(A100_2, A250_2))
+print(stats.ttest_ind(A100_2, A500_2))
+print(stats.ttest_ind(A250_2, A500_2))
+
+print(stats.ttest_ind(D100_1, D100_2))
+print(stats.ttest_ind(D250_1, D250_2))
+print(stats.ttest_ind(D500_1, D500_2))
+print(stats.ttest_ind(D100_1, D250_1))
+print(stats.ttest_ind(D100_1, D500_1))
+print(stats.ttest_ind(D250_1, D500_1))
+print(stats.ttest_ind(D100_2, D250_2))
+print(stats.ttest_ind(D100_2, D500_2))
+print(stats.ttest_ind(D250_2, D500_2))
+

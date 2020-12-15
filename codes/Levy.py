@@ -15,7 +15,7 @@ from matplotlib.collections import LineCollection
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import matplotlib.image as mpimg
 import trackpy as tp
-
+from matplotlib.ticker import MaxNLocator
 
 plt.style.use('aswinplotstyle')
 
@@ -63,6 +63,32 @@ def trajectory(pos, pid, max_lagtime,video, pos_columns):
     result['video'] = video
     return result
 
+def multicolor_ylabel(ax,list_of_strings,list_of_colors,axis='x',anchorpad=0,**kw):
+    """this function creates axes labels with multiple colors
+    ax specifies the axes object where the labels should be drawn
+    list_of_strings is a list of all of the text items
+    list_if_colors is a corresponding list of colors for the strings
+    axis='x', 'y', or 'both' and specifies which label(s) should be drawn"""
+    from matplotlib.offsetbox import AnchoredOffsetbox, TextArea, HPacker, VPacker
+
+    # x-axis label
+    if axis=='x' or axis=='both':
+        boxes = [TextArea(text, textprops=dict(color=color, ha='left',va='bottom',**kw)) 
+                    for text,color in zip(list_of_strings,list_of_colors) ]
+        xbox = HPacker(children=boxes,align="center",pad=0, sep=5)
+        anchored_xbox = AnchoredOffsetbox(loc=3, child=xbox, pad=anchorpad,frameon=False,bbox_to_anchor=(0.18, -0.09),
+                                          bbox_transform=ax.transAxes, borderpad=0.)
+        ax.add_artist(anchored_xbox)
+
+    # y-axis label
+    if axis=='y' or axis=='both':
+        boxes = [TextArea(text, textprops=dict(color=color, ha='left',va='bottom',rotation=90,**kw)) 
+                     for text,color in zip(list_of_strings[::-1],list_of_colors) ]
+        ybox = VPacker(children=boxes,align="center", pad=0, sep=5)
+        anchored_ybox = AnchoredOffsetbox(loc=3, child=ybox, pad=anchorpad, frameon=False, bbox_to_anchor=(-0.18, 0.2), 
+                                          bbox_transform=ax.transAxes, borderpad=0.)
+        ax.add_artist(anchored_ybox)
+        
 
 Filepath = '/Volumes/Samsung_T5/Experimental Data/Hans'
 bps = ['100bp', '250bp','500bp']
@@ -84,6 +110,8 @@ ax6 = plt.subplot2grid((2, 3), (1, 1),rowspan=2, colspan =2)
 num_plots1 = 1
 num_plots2 = 1
 axs = (ax3,ax4,ax5)
+fig3, ((ax7),(ax8)) = plt.subplots(2,1,figsize=(3.375,3.375*0.4*2),sharex=True)
+
 axnum=0
 for bp in bps:
     video = 1
@@ -123,7 +151,11 @@ for bp in bps:
                 lc.set_linewidth(1.5)
                 line = ax1.add_collection(lc)
                 ax1.plot(x,y, marker ='o', markerfacecolor = 'lightgray', markeredgecolor = 'lightgray', linestyle = 'None', zorder=1)
-            num_plots1+=1
+                deltat = np.arange(0,np.size(x.sub(x.shift(1))))/10
+                ax7.plot(deltat, x.sub(x.shift(1)),color = 'blue')
+                ax7.plot(deltat, y.sub(y.shift(1)),color = 'red')
+                ax8.plot(deltat, disp,color = 'black')
+            num_plots1 += 1
         if dispmax.max()<0.1 and np.size(x)>200:
             if  num_plots2 == 5:
                 x = [element-0.4 for element in x]
@@ -140,7 +172,7 @@ for bp in bps:
             num_plots2+=1
     axs[axnum].hist(dispfromoriginmax,bins = np.arange(0,2,0.1), edgecolor='black',color = 'white', density = True, rwidth=1)
     axs[axnum].set(xlabel=r'$ \left |\Updelta \mathbf{r}_{\mathrm{max}}\right |$' +' '+ r'(\textmu m) ',
-        ylabel=r'$P(\left |\Updelta \mathbf{r}_{\mathrm{max}}\right |)$')
+        ylabel=r'$P(\left |\Updelta \mathbf{r}_{\mathrm{max}}\right |)$'+' '+ r'(\textmu m$^{-1}$) ')
     axs[axnum].yaxis.set_ticks_position('both')
     axs[axnum].xaxis.set_ticks_position('both')
     axs[axnum].tick_params(which='both', axis="both", direction="in")
@@ -181,9 +213,20 @@ tp.plot_traj(tf,label = False, ax = ax6, zorder = 2, alpha = 0.5)
 fig1.tight_layout() 
 fig1.savefig(directory3 + '/scheme.pdf', dpi = 300)
 fig2.savefig(directory3 + '/scheme1.png', dpi = 300)
-
-
-
-
-
+ax7.set_xlim(0, 14)
+ax7.set_ylim(-0.1,0.1)
+ax8.set_xlim(0, 14)
+ax8.set_ylim(0,0.1)
+ax8.set(xlabel=r'$ \Updelta t$' +' '+ r'(s) ',
+        ylabel=r'$\left |\Updelta \mathbf{r}\right |$'+' '+ r'(\textmu m) ')
+#ax7.set(ylabel=r'$\Updelta x$'+' '+ r'(\textmu m) ')
+multicolor_ylabel(ax7,(r'$\Updelta x$', r'$\Updelta y$',' '+ r'(\textmu m) '),('k','r','b'),axis='y')
+for n, ax in enumerate((ax7, ax8)):   
+    ax.text(-0.2, 1, r'\textbf{'+ string.ascii_lowercase[n]+'}', transform=ax.transAxes, 
+            size=8)
+    ax.yaxis.set_ticks_position('both')
+    ax.xaxis.set_ticks_position('both')
+    ax.tick_params(which='both', axis="both", direction="in")
+fig3.tight_layout()
+fig3.savefig(directory3 + '/sample.pdf', dpi = 300)
 #frames = pims.ImageSequence('../sample_data/bulk_water/*.png', as_grey=True)       

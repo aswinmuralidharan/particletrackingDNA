@@ -160,7 +160,7 @@ for bp in bps:
              transform=ax[i].transAxes)
     ax[i].text(-0.4, 1, r'\textbf{'+ string.ascii_lowercase[i]+'}', transform=ax[i].transAxes, 
             size=8, weight='bold')
-    ax2[i].hist(alpha,bins = np.arange(-1,1,0.1), edgecolor='black',color = 'white', density = True, rwidth=1)
+    ax2[i].hist(alpha,bins = np.arange(-1.05,1.05,0.1), edgecolor='black',color = 'white', density = True, rwidth=1)
     ax2[i].set(xlabel=r'$ \beta$',
         ylabel=r'$P(\beta)$')
     ax2[i].yaxis.set_ticks_position('both')
