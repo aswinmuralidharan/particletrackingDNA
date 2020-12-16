@@ -216,8 +216,8 @@ fig2.savefig(directory3 + '/scheme1.png', dpi = 300)
 ax7.set_xlim(0, 14)
 ax7.set_ylim(-0.1,0.1)
 ax8.set_xlim(0, 14)
-ax8.set_ylim(0,0.1)
-ax8.set(xlabel=r'$ \Updelta t$' +' '+ r'(s) ',
+ax8.set_ylim(0,0.15)
+ax8.set(xlabel=r'$ t$' +' '+ r'(s) ',
         ylabel=r'$\left |\Updelta \mathbf{r}\right |$'+' '+ r'(\textmu m) ')
 #ax7.set(ylabel=r'$\Updelta x$'+' '+ r'(\textmu m) ')
 multicolor_ylabel(ax7,(r'$\Updelta x$', r'$\Updelta y$',' '+ r'(\textmu m) '),('k','r','b'),axis='y')

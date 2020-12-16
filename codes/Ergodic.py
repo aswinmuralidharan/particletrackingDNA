@@ -73,7 +73,7 @@ i = 0
 num_plots = 1
 axnum=0
 fig1, ((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2, figsize=(3.375,3.375*2*1.6/3))
-fig2, ((ax5),(ax6),(ax7)) = plt.subplots(3,1,figsize=(3.375,3.375*0.4*3))
+fig2, ((ax5),(ax6),(ax7)) = plt.subplots(3,1,figsize=(3.375,3.375*0.4*3),sharex=True)
 ax = (ax1,ax2,ax3)
 ax2 = (ax5, ax6, ax7)
 colors = ['#fc8d59','#ffffbf', '#91bfdb']
@@ -161,8 +161,7 @@ for bp in bps:
     ax[i].text(-0.4, 1, r'\textbf{'+ string.ascii_lowercase[i]+'}', transform=ax[i].transAxes, 
             size=8, weight='bold')
     ax2[i].hist(alpha,bins = np.arange(-1.05,1.05,0.1), edgecolor='black',color = 'white', density = True, rwidth=1)
-    ax2[i].set(xlabel=r'$ \beta$',
-        ylabel=r'$P(\beta)$')
+    ax2[i].set(ylabel=r'$P(\beta)$')
     ax2[i].yaxis.set_ticks_position('both')
     ax2[i].xaxis.set_ticks_position('both')
     ax2[i].tick_params(which='both', axis="both", direction="in")
@@ -171,7 +170,7 @@ for bp in bps:
     ax2[i].text(0.95, 0.9, bpcs[i], verticalalignment='top', horizontalalignment='right',
          multialignment="left",
          transform=ax2[i].transAxes, color = 'black')
-    ax2[i].text(-0.1, 1, r'\textbf{'+ string.ascii_lowercase[i]+'}', transform=ax2[i].transAxes, 
+    ax2[i].text(-0.12, 1, r'\textbf{'+ string.ascii_lowercase[i]+'}', transform=ax2[i].transAxes, 
             size=8, weight='bold')
     EB1 = np.square(MSDt).mean(axis = 1)
     EB2 = np.square(MSDav)
@@ -193,6 +192,7 @@ ax4.xaxis.set_major_locator(LogLocator(base = 10, numticks =5))
 locmin = LogLocator(base=10.0,subs=tuple(np.arange(0.1, 1, 0.1)),numticks=5)
 ax4.xaxis.set_minor_locator(locmin)
 ax4.xaxis.set_minor_formatter(NullFormatter())
+ax2[2].set(xlabel=r'$\beta$')
 fig1.tight_layout()  
 fig2.tight_layout()   
 

@@ -17,6 +17,7 @@ from pylab import plot, show, savefig, xlim, figure, \
                  ylim, legend, boxplot, setp, axes
 from matplotlib.ticker import MaxNLocator
 from scipy import stats
+from operator import add, truediv
 
 plt.style.use('aswinplotstyle')
 
@@ -393,8 +394,6 @@ ax2[1].set_xticklabels(['100 bp', '250 bp', '500 bp'])
 ax2[1].set_xticks([1.5, 4.5, 7.5])
 ax2[1].set(ylabel=r'$\alpha$')
 ax2[1].set_xlim(0,9)
-my_locator = MaxNLocator(6)
-ax2[1].yaxis.set_major_locator(my_locator)
 hB, = ax2[1].plot([1,1],'b-')
 hR, = ax2[1].plot([1,1],'r-')
 ax2[1].legend((hB, hR),(r'$0<\Updelta t\mathrm{ \: (s) }<1$', r'$1<\Updelta t \mathrm{ \: (s) }<10$'),frameon = False,loc ='upper right')
@@ -414,6 +413,58 @@ for n,ax in enumerate(ax2):
         
 fig2.tight_layout()
 fig2.savefig(directory3 + '/boxplot.pdf')
+
+X = np.array([1,3,5])
+
+cagA100_1 =  np.size(A100_1[A100_1<0.4])/np.size(A100_1)*100
+cagA250_1 =  np.size(A250_1[A250_1<0.4])/np.size(A250_1)*100
+cagA500_1 =  np.size(A500_1[A500_1<0.4])/np.size(A500_1)*100
+
+cagA100_2 =  np.size(A100_2[A100_2<0.4])/np.size(A100_2)*100
+cagA250_2 =  np.size(A250_2[A250_2<0.4])/np.size(A250_2)*100
+cagA500_2 =  np.size(A500_2[A500_2<0.4])/np.size(A500_2)*100
+
+subA100_1 =  np.size(A100_1[A100_1<1])/np.size(A100_1)*100 - cagA100_1
+subA250_1 =  np.size(A250_1[A250_1<1])/np.size(A250_1)*100 - cagA250_1
+subA500_1 =  np.size(A500_1[A500_1<1])/np.size(A500_1)*100 - cagA500_1
+
+subA100_2 =  np.size(A100_2[A100_2<1])/np.size(A100_2)*100 - cagA100_2
+subA250_2 =  np.size(A250_2[A250_2<1])/np.size(A250_2)*100 - cagA250_2
+subA500_2 =  np.size(A500_2[A500_2<1])/np.size(A500_2)*100 - cagA500_2
+
+supA100_1 =  100 - cagA100_1 - subA100_1
+supA250_1 =  100 - cagA250_1 - subA250_1
+supA500_1 =  100 - cagA500_1 - subA500_1
+
+supA100_2 =  100 - cagA100_2 - subA100_2
+supA250_2 =  100 - cagA250_2 - subA250_2
+supA500_2 =  100 - cagA500_2 - subA500_2
+
+cag_1 = [cagA100_1, cagA250_1, cagA500_1]
+cag_2 = [cagA100_2, cagA250_2, cagA500_2]
+
+sub_1 = [subA100_1, subA250_1, subA500_1]
+sub_2 = [subA100_2, subA250_2, subA500_2]
+
+sup_1 = [supA100_1, supA250_1, supA500_1]
+sup_2 = [supA100_2, supA250_2, supA500_2]
+
+fig3, ax3 = plt.subplots(1,1, figsize=(3.375,3.375*0.6))
+ind = np.arange(3)    # the x locations for the groups
+ind2 = np.arange(0.25,3.25) 
+width = 0.25  
+p1 = plt.bar(ind, cag_1, width,fill=False, edgecolor='blue',hatch = '//', linewidth=1, label = 'Caged'+'\n'+r'$0<\alpha_1<0.4$', alpha=1)
+p1 = plt.bar(ind2, cag_2, width,fill=False, edgecolor='red',hatch = '//', linewidth=1, label = 'Caged'+'\n'+r'$0<\alpha_2<0.4$', alpha=1)
+p2 = plt.bar(ind, sub_1, width,fill=False, bottom = cag_1, edgecolor='blue',hatch = '..', linewidth=1, label = 'Subdiffusive'+'\n'+r'$0.4<\alpha_1<2$', alpha=1)
+p2 = plt.bar(ind2, sub_2, width,fill=False, bottom = cag_2, edgecolor='red',hatch = '..', linewidth=1, label = 'Subdiffusive'+'\n'+r'$0.4<\alpha_2<2$', alpha=1)
+p3 = plt.bar(ind, sup_1, width,fill=False, bottom = list(map(add, cag_1, sub_1)), edgecolor='blue', linewidth=1, label = 'Superdiffusive'+'\n'+r'$1<\alpha_1<2$', alpha=1)
+p3 = plt.bar(ind2, sup_2, width,fill=False, bottom = list(map(add, cag_2, sub_2)), edgecolor='red', linewidth=1, label = 'Superdiffusive'+'\n'+r'$1<\alpha_2<2$', alpha=1)
+ax3.set_ylim([0,110])
+ax3.tick_params(which="both", axis="both", direction="in")
+ax3.set_ylabel('Percentage')
+plt.xticks([0.125, 1.125, 2.125], ('100 bp', '250 bp', '500 bp'))
+ax3.legend(loc='upper center',frameon= False, bbox_to_anchor=(0.5, 1.4), ncol = 3)
+fig3.savefig(directory3 + '/barchart.png', bbox_inches = "tight",dpi=300)
 print(stats.ttest_ind(A100_1, A100_2))
 print(stats.ttest_ind(A250_1, A250_2))
 print(stats.ttest_ind(A500_1, A500_2))
