@@ -13,11 +13,10 @@ import os
 from scipy.optimize import curve_fit
 from scipy.stats import kde
 import string
-from pylab import plot, show, savefig, xlim, figure, \
-                 ylim, legend, boxplot, setp, axes
+from pylab import setp
 from matplotlib.ticker import MaxNLocator
 from scipy import stats
-from operator import add, truediv
+from operator import add
 
 plt.style.use('aswinplotstyle')
 
@@ -221,7 +220,7 @@ max_lagtime = 100
 bpc = ['100bp' , '250bp', '500bp']
 bpcs = ['100 bp' , '250 bp', '500 bp']
 fig1, ax = plt.subplots(2,3, figsize=(3.375*2,3.375*4/3))
-fig2, ax2 = plt.subplots(2,1, figsize=(3.375,3.375*1.2))
+fig2, ax2 = plt.subplots(1,2, figsize=(3.375*2,3.375*0.6))
 i=0
 for bp in bpc:
     Filepath = '/Volumes/Samsung_T5/Experimental Data/Hans'
@@ -374,7 +373,7 @@ ax2[0].set_yscale('log')
 ax2[0].set_ylim(1e-4,0.1)
 ax2[0].set_xticklabels(['100 bp', '250 bp', '500 bp'])
 ax2[0].set_xticks([1.5, 4.5, 7.5])
-ax2[0].set(ylabel=r'$D_{\mathrm{app}}$ ')
+ax2[0].set(ylabel=r'$D_{\mathrm{app}}$ ($\mathrm{\upmu}$m$^2$s$^{-\alpha}$)')
 ax2[0].set_xlim(0,9)
 bp2 = ax2[1].boxplot([A100_1, A100_2], positions = [1, 2], widths = 0.6, showfliers = False)
 setBoxColors(bp2)
@@ -404,16 +403,14 @@ hR, = ax2[0].plot([1,1],'r-')
 ax2[0].legend((hB, hR),(r'$0<\Updelta t\mathrm{ \: (s) }<1$', r'$1<\Updelta t \mathrm{ \: (s) }<10$'),frameon = False,loc ='upper right')
 hB.set_visible(False)
 hR.set_visible(False)
-
-axlab =0
+ax2[1].yaxis.set_major_locator(MaxNLocator(nbins = 4))
 for n,ax in enumerate(ax2): 
-    ax.text(-0.15, 1, r'\textbf{'+ string.ascii_lowercase[axlab]+'}', transform=ax.transAxes, 
+    ax.text(-0.13, 1, r'\textbf{'+ string.ascii_lowercase[n+3]+'}', transform=ax.transAxes, 
             size=8, weight='bold')
-    axlab+=1
         
 fig2.tight_layout()
 fig2.savefig(directory3 + '/boxplot.pdf')
-
+fig2.savefig(directory3 + '/boxplot.png',dpi=300)
 X = np.array([1,3,5])
 
 cagA100_1 =  np.size(A100_1[A100_1<0.4])/np.size(A100_1)*100
@@ -455,8 +452,8 @@ ind2 = np.arange(0.25,3.25)
 width = 0.25  
 p1 = plt.bar(ind, cag_1, width,fill=False, edgecolor='blue',hatch = '//', linewidth=1, label = 'Caged'+'\n'+r'$0<\alpha_1<0.4$', alpha=1)
 p1 = plt.bar(ind2, cag_2, width,fill=False, edgecolor='red',hatch = '//', linewidth=1, label = 'Caged'+'\n'+r'$0<\alpha_2<0.4$', alpha=1)
-p2 = plt.bar(ind, sub_1, width,fill=False, bottom = cag_1, edgecolor='blue',hatch = '..', linewidth=1, label = 'Subdiffusive'+'\n'+r'$0.4<\alpha_1<2$', alpha=1)
-p2 = plt.bar(ind2, sub_2, width,fill=False, bottom = cag_2, edgecolor='red',hatch = '..', linewidth=1, label = 'Subdiffusive'+'\n'+r'$0.4<\alpha_2<2$', alpha=1)
+p2 = plt.bar(ind, sub_1, width,fill=False, bottom = cag_1, edgecolor='blue',hatch = '..', linewidth=1, label = 'Subdiffusive'+'\n'+r'$0.4<\alpha_1<1$', alpha=1)
+p2 = plt.bar(ind2, sub_2, width,fill=False, bottom = cag_2, edgecolor='red',hatch = '..', linewidth=1, label = 'Subdiffusive'+'\n'+r'$0.4<\alpha_2<1$', alpha=1)
 p3 = plt.bar(ind, sup_1, width,fill=False, bottom = list(map(add, cag_1, sub_1)), edgecolor='blue', linewidth=1, label = 'Superdiffusive'+'\n'+r'$1<\alpha_1<2$', alpha=1)
 p3 = plt.bar(ind2, sup_2, width,fill=False, bottom = list(map(add, cag_2, sub_2)), edgecolor='red', linewidth=1, label = 'Superdiffusive'+'\n'+r'$1<\alpha_2<2$', alpha=1)
 ax3.set_ylim([0,110])

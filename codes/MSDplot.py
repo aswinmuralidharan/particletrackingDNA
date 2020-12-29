@@ -13,6 +13,7 @@ import os
 from scipy.optimize import curve_fit
 import string
 from matplotlib.ticker import LogLocator, NullFormatter
+import matplotlib as mpl
 
 plt.style.use('aswinplotstyle')
 
@@ -27,9 +28,6 @@ plt.rc('axes', labelsize=7)
 plt.rc('lines', linewidth=1)
 plt.rc('lines', markersize=6)
 plt.rc('text', usetex = True)
-
-
-
 plt.rcParams['text.latex.preamble'] = [
        r'\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
        r'\sansmath'               # <- tricky! -- gotta actually tell tex to use!
@@ -39,7 +37,8 @@ plt.rcParams['text.latex.preamble'] = [
 ]  
 plt.rcParams['font.sans-serif'] = 'Helvetica, Avant Garde, Computer Modern Sans serif'
 plt.rcParams['axes.linewidth'] = 1
-
+mpl.rcParams['pdf.fonttype'] = 42
+mpl.rcParams['ps.fonttype'] = 42
 def _msd_iter(pos, lagtimes):
     for lt in lagtimes:
         diff = pos[lt:] - pos[:-lt]
@@ -287,7 +286,7 @@ for bp in bpc:
     ax[i].text(0.05, 0.95, bps + '\n$n$ = ' + str(totaltracks), verticalalignment='top', horizontalalignment='left',
              multialignment="left",
              transform=ax[i].transAxes)
-    ax[i].text(-0.2, 1, r'\textbf{'+ string.ascii_lowercase[i]+'}', transform=ax[i].transAxes, 
+    ax[i].text(-0.23, 1, r'\textbf{'+ string.ascii_lowercase[i]+'}', transform=ax[i].transAxes, 
             size=8, weight='bold')
     ax[i].xaxis.set_major_locator(LogLocator(base = 10, numticks =5))
     locmin = LogLocator(base=10.0,subs=tuple(np.arange(0.1, 1, 0.1)),numticks=5)
@@ -297,4 +296,5 @@ for bp in bpc:
 plt.tight_layout()
 
 
-fig1.savefig(directory3 + '/MSD.pdf')
+fig1.savefig(directory3 + '/MSD.png',dpi=300)
+#fig1.savefig(directory3 + '/MSD.eps')
