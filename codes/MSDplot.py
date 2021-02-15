@@ -190,8 +190,10 @@ def imsd(filename, mpp, fps, video, directory, plotindividual=False, max_lagtime
 
 Filepath = '/Volumes/Samsung_T5/Experimental Data/Hans'
 i = 0
-bpc = ['100bp', '250bp', '500bp']
-bpcs = ['100 bp', '250 bp', '500 bp']
+#bpc = ['100bp', '250bp', '500bp']
+#bpcs = ['100 bp', '250 bp', '500 bp']
+bpc = ['MCF7500bp']
+bpcs = ['MCF7 500bp']
 fig1, (ax1,ax2,ax3) = plt.subplots(1,3, figsize=(3.375*2,3.375*2.2/3))
 ax= (ax1,ax2,ax3)
 for bp in bpc:
@@ -253,8 +255,8 @@ for bp in bpc:
     Trajcollected_df = pd.concat(Trajcollected)
     Trajcollected_df = Trajcollected_df.dropna(axis = 'columns', how = 'all')
     Alphacollected_df = pd.concat(alphacollected)
-    Alphacollected_super_df = pd.concat(alphasuper)
-    Alphacollected_sub_df = pd.concat(alphasub)
+    #Alphacollected_super_df = pd.concat(alphasuper)
+    #Alphacollected_sub_df = pd.concat(alphasub)
     MSDsuper_df = MSDsuper_df.dropna(axis = 'columns', how = 'all')
     MSDsub_df = MSDsub_df.dropna(axis = 'columns', how = 'all')
     totaltracks = len(MSDcollected_df.columns)
@@ -286,7 +288,7 @@ for bp in bpc:
     ax[i].text(0.05, 0.95, bps + '\n$n$ = ' + str(totaltracks), verticalalignment='top', horizontalalignment='left',
              multialignment="left",
              transform=ax[i].transAxes)
-    ax[i].text(-0.23, 1, r'\textbf{'+ string.ascii_lowercase[i]+'}', transform=ax[i].transAxes, 
+    ax[i].text(-0.23, 1, r'\textbf{'+ string.ascii_uppercase[i]+'}', transform=ax[i].transAxes, 
             size=8, weight='bold')
     ax[i].xaxis.set_major_locator(LogLocator(base = 10, numticks =5))
     locmin = LogLocator(base=10.0,subs=tuple(np.arange(0.1, 1, 0.1)),numticks=5)

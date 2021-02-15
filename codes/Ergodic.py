@@ -62,9 +62,13 @@ def trajectory(pos, pid, max_lagtime,video, pos_columns):
     return result
 
 
+# Filepath and files to process
+
 Filepath = '/Volumes/Samsung_T5/Experimental Data/Hans'
-bps = ['100bp', '250bp','500bp']
-bpcs = ['100 bp', '250 bp','500 bp']
+#bps = ['100bp', '250bp','500bp']
+#bpcs = ['100 bp', '250 bp','500 bp']
+bps = ['MCF7500bp']
+bpcs = ['MCF7 500bp']
 mpp = 0.16
 fps = 10
 max_lagtime = 100
@@ -72,13 +76,19 @@ pos_columns = ['x', 'y']
 i = 0
 num_plots = 1
 axnum=0
+
+# Pre-initialize the plots
 fig1, ((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2, figsize=(3.375,3.375*2*1.6/3))
 fig2, ((ax5),(ax6),(ax7)) = plt.subplots(3,1,figsize=(3.375,3.375*0.4*3),sharex=True)
 ax = (ax1,ax2,ax3)
 ax2 = (ax5, ax6, ax7)
 colors = ['#fc8d59','#ffffbf', '#91bfdb']
+#colors = ['#FFFFFF','#FFFFFF','#FFFFFF']
 mkr = ['^' , 'o', 's']
 delta = 1
+z= [2,1,0] 
+
+
 for bp in bps:      
     j=0
     video = 1
@@ -158,7 +168,7 @@ for bp in bps:
     ax[i].text(0.9, 0.92, bpcs[i] + '\n' + r'$\Updelta t$  = 0.1 s' , verticalalignment='top', horizontalalignment='right',
              multialignment="left",
              transform=ax[i].transAxes)
-    ax[i].text(-0.4, 1, r'\textbf{'+ string.ascii_lowercase[i]+'}', transform=ax[i].transAxes, 
+    ax[i].text(-0.4, 1, r'\textbf{'+ string.ascii_uppercase[i]+'}', transform=ax[i].transAxes, 
             size=8, weight='bold')
     ax2[i].hist(alpha,bins = np.arange(-1.05,1.05,0.1), edgecolor='black',color = 'white', density = True, rwidth=1)
     ax2[i].set(ylabel=r'$P(\beta)$')
@@ -170,12 +180,12 @@ for bp in bps:
     ax2[i].text(0.95, 0.9, bpcs[i], verticalalignment='top', horizontalalignment='right',
          multialignment="left",
          transform=ax2[i].transAxes, color = 'black')
-    ax2[i].text(-0.12, 1, r'\textbf{'+ string.ascii_lowercase[i]+'}', transform=ax2[i].transAxes, 
+    ax2[i].text(-0.12, 1, r'\textbf{'+ string.ascii_uppercase[i]+'}', transform=ax2[i].transAxes, 
             size=8, weight='bold')
     EB1 = np.square(MSDt).mean(axis = 1)
     EB2 = np.square(MSDav)
     EB = (EB1-EB2)/EB2
-    ax4.plot(EB, marker = mkr[i], markeredgecolor = 'black',  markerfacecolor = colors[i], linestyle = 'None', label = bpcs[i])
+    ax4.plot(EB[::2], marker = mkr[i], markeredgecolor = 'black',  markerfacecolor = colors[i], linestyle = 'None', label = bpcs[i], zorder = z[i])
     i+=1
 ax4.set_xscale('log')
 ax4.set_yscale('log')
@@ -185,7 +195,7 @@ ax4.set(ylabel=r'$EB$',
 ax4.yaxis.set_ticks_position('both')
 ax4.xaxis.set_ticks_position('both')
 ax4.tick_params(which="both", axis="both", direction="in")
-ax4.text(-0.4, 1, r'\textbf{'+ string.ascii_lowercase[3]+'}', transform=ax4.transAxes, 
+ax4.text(-0.4, 1, r'\textbf{'+ string.ascii_uppercase[3]+'}', transform=ax4.transAxes, 
             size=8, weight='bold')
 ax4.legend(loc ='lower left', frameon = False,  handletextpad=0.1)
 ax4.xaxis.set_major_locator(LogLocator(base = 10, numticks =5))

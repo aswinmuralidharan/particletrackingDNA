@@ -93,6 +93,9 @@ def multicolor_ylabel(ax,list_of_strings,list_of_colors,axis='x',anchorpad=0,**k
 Filepath = '/Volumes/Samsung_T5/Experimental Data/Hans'
 bps = ['100bp', '250bp','500bp']
 bpcs = ['100 bp', '250 bp','500 bp']
+#bps = ['MCF7500bp']
+#bpcs = ['MCF7 500bp']
+
 mpp = 0.16
 fps = 10
 max_lagtime = 100
@@ -100,17 +103,18 @@ pos_columns = ['x', 'y']
 trajec = []
 fig1 = plt.figure(figsize=(3.375*2,3.375*2*1.6/3))
 
-ax1 = plt.subplot2grid((2, 3), (0, 2), rowspan=2, colspan =1)
-ax2 = plt.subplot2grid((2, 3), (0, 0) )
-ax3 = plt.subplot2grid((2, 3), (0, 1))
-ax4 = plt.subplot2grid((2, 3), (1, 0))
-ax5 = plt.subplot2grid((2, 3), (1, 1))
+#ax1 = plt.subplot2grid((2, 3), (0, 2), rowspan=1, colspan =1)
+ax2 = plt.subplot2grid((2, 3), (0, 0))
+ax3 = plt.subplot2grid((2, 3), (1, 0))
+ax4 = plt.subplot2grid((2, 3), (1, 1))
+ax5 = plt.subplot2grid((2, 3), (1, 2))
 fig2 = plt.figure(figsize=(3.375*2,3.375*2*1.6/3))
-ax6 = plt.subplot2grid((2, 3), (1, 1),rowspan=2, colspan =2)
+ax6 = plt.subplot2grid((1, 1), (0, 0),rowspan=1, colspan =1)
 num_plots1 = 1
 num_plots2 = 1
 axs = (ax3,ax4,ax5)
 fig3, ((ax7),(ax8)) = plt.subplots(2,1,figsize=(3.375,3.375*0.4*2),sharex=True)
+fig4,ax1 = plt.subplots(1,1,figsize=(3.375*2/3,3.375*2*1.6/6))
 
 axnum=0
 for bp in bps:
@@ -141,25 +145,25 @@ for bp in bps:
         disp = (x.sub(x.shift(1))**2+y.sub(y.shift(1))**2)**0.5
         dispmax = ((x[0]-x[x.index[-1]])**2+(y[0]-y[y.index[-1]])**2)**0.5
         if dispmax.max() >1 and np.size(x)>150:
-            if num_plots1 ==4:
+            if num_plots1 ==11:
                 t = np.arange(0, 20.1, 0.1)
-                points = np.array([x, y]).T.reshape(-1, 1, 2)
+                points = np.array([-x*1.5, -y*1.5]).T.reshape(-1, 1, 2)
                 segments = np.concatenate([points[:-1], points[1:]], axis=1)
                 norm = plt.Normalize(t.min(), t.max())
                 lc = LineCollection(segments, cmap='plasma', norm=norm, zorder =2, alpha =1)
                 lc.set_array(t)
                 lc.set_linewidth(1.5)
                 line = ax1.add_collection(lc)
-                ax1.plot(x,y, marker ='o', markerfacecolor = 'lightgray', markeredgecolor = 'lightgray', linestyle = 'None', zorder=1)
+                ax1.plot(-x*1.5,-y*1.5, marker ='o', markerfacecolor = 'lightgray', markeredgecolor = 'lightgray', linestyle = 'None', zorder=1)
                 deltat = np.arange(0,np.size(x.sub(x.shift(1))))/10
                 ax7.plot(deltat, x.sub(x.shift(1)),color = 'blue')
                 ax7.plot(deltat, y.sub(y.shift(1)),color = 'red')
                 ax8.plot(deltat, disp,color = 'black')
             num_plots1 += 1
         if dispmax.max()<0.1 and np.size(x)>200:
-            if  num_plots2 == 5:
-                x = [element-0.4 for element in x]
-                y = [element-0.1 for element in y]
+            if  num_plots2 == 4:
+                x = [(element-0.9)*1.5 for element in x]
+                y = [(element-0.4)*1.5 for element in y]
                 t = np.arange(0, 20.1, 0.1)
                 points = np.array([x, y]).T.reshape(-1, 1, 2)
                 segments = np.concatenate([points[:-1], points[1:]], axis=1)
@@ -184,34 +188,39 @@ for bp in bps:
     axnum+=1
                 
    
-scalebary = [-1.4, -1.4]
-scalebarx = [-0.1,0.15]
+scalebary = [-2.2, -2.2]
+scalebarx = [-0.1*1.5,0.15*1.5]
 ax1.plot(scalebarx,scalebary,'k', linewidth = 2)
-ax1.set_xlim(-0.7, 0.2)
-ax1.set_ylim(-1.5,0.3) 
-ax1.text(-0.45,-0.2, r'\textit{Localized}', verticalalignment='top', horizontalalignment='center', style ='italic' ) 
-ax1.text(-0.05,0.1, r'\textit{Directional}', verticalalignment='top', horizontalalignment='center', style ='italic' ) 
-ax1.text(-0.5,-1.32, r'\textit{Turn}', verticalalignment='top', horizontalalignment='center', style ='italic' )
-ax1.text(0.025,-1.35, r'\textbf{250 nm}', verticalalignment='bottom', horizontalalignment='center' )             
+ax1.set_xlim(-2.8, 0.8)
+ax1.set_ylim(-2.5,0.5) 
+ax1.text(-0.95*1.5,-0.6*1.5, r'\textit{Localized}', verticalalignment='top', horizontalalignment='center', style ='italic' ) 
+ax1.text(-0.05,0.25, r'\textit{Exploratory}', verticalalignment='top', horizontalalignment='center', style ='italic' ) 
+#ax1.text(-0.5,-1.32, r'\textit{Turn}', verticalalignment='top', horizontalalignment='center', style ='italic' )
+ax1.text(0.025,-2.15, r'\textbf{250 nm}', verticalalignment='bottom', horizontalalignment='center' )             
 cbaxes = inset_axes(ax1, width="40%", height="3%", loc=2) 
 cbar = fig1.colorbar(line, cax=cbaxes, label = '$t$ (s)', orientation='horizontal')
 cbar.ax.tick_params(axis='x', direction='in')
 cbar.ax.get_xaxis().labelpad = -7
 cbar.set_ticks(np.arange(0, 20.1, step=20))
 ax1.set_aspect(1)
-for n, ax in enumerate((ax2, ax3, ax4, ax5, ax1)):   
-    ax.text(-0.2, 1, r'\textbf{'+ string.ascii_lowercase[n]+'}', transform=ax.transAxes, 
-            size=8)
+for n, ax in enumerate((ax3, ax4, ax5)):   
+    ax.text(-0.2, 1, r'\textbf{'+ string.ascii_uppercase[n+2]+'}', transform=ax.transAxes, 
+            size=8)   
+#ax1.text(-0.15, 1, r'\textbf{'+ string.ascii_uppercase[1]+'}', transform=ax1.transAxes, 
+#        size=8)
+ax2.text(-0.15, 1, r'\textbf{'+ string.ascii_uppercase[0]+'}', transform=ax2.transAxes, 
+        size=8)
 im = mpimg.imread('/Volumes/Samsung_T5/Experimental Data/Hans/B_raw_tiff/Schema.png')
-image1 = ax6.imshow(im, zorder =1)
+image1 = ax6.imshow(im,cmap='gray', zorder =1)
 ax1.axes.xaxis.set_visible(False)
 ax1.axes.yaxis.set_visible(False)
+ax2.axis("off")
 ax6.axes.xaxis.set_visible(False)
 ax6.axes.yaxis.set_visible(False)
-tf = pd.read_csv('/Volumes/Samsung_T5/Experimental Data/Hans/E_output_data/100bp/tf/tf_movie_9.csv')
+tf = pd.read_csv('/Volumes/Samsung_T5/Experimental Data/Hans/E_output_data/500bp/tf/tf_movie_12.csv')
 tp.plot_traj(tf,label = False, ax = ax6, zorder = 2, alpha = 0.5)
 fig1.tight_layout() 
-fig1.savefig(directory3 + '/scheme.pdf', dpi = 300)
+fig1.savefig(directory3 + '/scheme.png', dpi = 300)
 fig2.savefig(directory3 + '/scheme1.png', dpi = 300)
 ax7.set_xlim(0, 14)
 ax7.set_ylim(-0.1,0.1)
@@ -222,11 +231,12 @@ ax8.set(xlabel=r'$ t$' +' '+ r'(s) ',
 #ax7.set(ylabel=r'$\Updelta x$'+' '+ r'(\textmu m) ')
 multicolor_ylabel(ax7,(r'$\Updelta x$', r'$\Updelta y$',' '+ r'(\textmu m) '),('k','r','b'),axis='y')
 for n, ax in enumerate((ax7, ax8)):   
-    ax.text(-0.2, 1, r'\textbf{'+ string.ascii_lowercase[n]+'}', transform=ax.transAxes, 
+    ax.text(-0.2, 1, r'\textbf{'+ string.ascii_uppercase[n]+'}', transform=ax.transAxes, 
             size=8)
     ax.yaxis.set_ticks_position('both')
     ax.xaxis.set_ticks_position('both')
     ax.tick_params(which='both', axis="both", direction="in")
 fig3.tight_layout()
 fig3.savefig(directory3 + '/sample.pdf', dpi = 300)
+fig4.savefig(directory3 + '/schemefig.png', dpi = 300)
 #frames = pims.ImageSequence('../sample_data/bulk_water/*.png', as_grey=True)       

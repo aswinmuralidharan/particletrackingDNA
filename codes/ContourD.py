@@ -163,17 +163,22 @@ def imsd(filename, mpp, fps, video, directory,min_time, max_time, plotindividual
                     ax.text(0.05, 0.95,  r'$\alpha$ = ' + str(alphatemp), verticalalignment='top', horizontalalignment='left',
                              transform=ax.transAxes)
                     plt.savefig(directory + '/'+str(video)+str(index)+'.pdf')
-                del msdtemp        
-    resultsmsd = pd.concat(msds, keys=ids)
-    resultsmsd = resultsmsd.swaplevel(0, 1)[statistic].unstack()
-    lagt = resultsmsd.index.values.astype('float64') / float(fps)
-    resultsmsd.set_index(lagt, inplace=True)
-    resultsmsd.index.name = 'lag time [s]'
-    resultstraj = pd.concat(trajec)
-    time = resultstraj.index.values.astype('float64') / float(fps)
-    resultstraj.set_index(time, inplace=True)
-    resultstraj.index.name = 'Time [s]'
-    alpha = pd.DataFrame(alpha)
+                del msdtemp 
+    if msds:
+        resultsmsd = pd.concat(msds, keys=ids)
+        resultsmsd = resultsmsd.swaplevel(0, 1)[statistic].unstack()
+        lagt = resultsmsd.index.values.astype('float64') / float(fps)
+        resultsmsd.set_index(lagt, inplace=True)
+        resultsmsd.index.name = 'lag time [s]'
+        resultstraj = pd.concat(trajec)
+        time = resultstraj.index.values.astype('float64') / float(fps)
+        resultstraj.set_index(time, inplace=True)
+        resultstraj.index.name = 'Time [s]'
+        alpha = pd.DataFrame(alpha)
+    else:
+        resultsmsd = pd.DataFrame
+        resultstraj = pd.DataFrame()
+        alpha = pd.DataFrame()
     if msdsuper:
         resultssuper = pd.concat(msdsuper, keys = ids)
         resultssuper = resultssuper.swaplevel(0, 1)[statistic].unstack()
@@ -217,8 +222,10 @@ Main code
 mpp = 0.16
 fps = 10
 max_lagtime = 100
-bpc = ['100bp' , '250bp', '500bp']
-bpcs = ['100 bp' , '250 bp', '500 bp']
+#bpc = ['100bp' , '250bp', '500bp']
+#bpcs = ['100 bp' , '250 bp', '500 bp']
+bpc = ['MCF7500bp']
+bpcs = ['MCF7 500bp']
 fig1, ax = plt.subplots(2,3, figsize=(3.375*2,3.375*4/3))
 fig2, ax2 = plt.subplots(1,2, figsize=(3.375*2,3.375*0.6))
 i=0
@@ -291,7 +298,7 @@ for bp in bpc:
     for dirs in ['/MSDcollected', '/Trajcollected','/MSDindividual', '/Figures' ]:
         if not os.path.exists(Filepath + '/E_output_data/' + str(bp) + dirs):
             os.makedirs(Filepath + '/E_output_data/' + str(bp) + dirs)
-    directory = Filepath + '/E_output_data/' + str(bp) + '/tm'
+    directory = Filepath + '/E_output_data/' + str(bp) + '/tf'
     directory2 = Filepath + '/E_output_data/' + str(bp) + '/MSDindividual'
     directory3 = Filepath + '/E_output_data/' + str(bp) + '/Figures' 
     currentlength = 0
@@ -303,16 +310,17 @@ for bp in bpc:
     for filename in os.listdir(directory):
         if not filename.startswith('.'):
             meansquaredis, traj, alpha, resultssuper, resultssub, alphasupert,alphasubt = imsd(os.path.join(directory, filename), mpp, fps, video, directory2, 20, 50,False, max_lagtime)
-            MSDcolumns = [i + currentlength for i in range(1, len(meansquaredis.columns) + 1)]
-            if currentlength == 0:
-                MSDcollected_df = pd.DataFrame(meansquaredis, columns= np.arange(0,len(meansquaredis.columns) + 1))
-            else:
-                MSDcollected_df[MSDcolumns] = meansquaredis
-            Trajcollected.append(traj)
-            alphacollected.append(alpha)
-            video += 1
-            currentlength = len(MSDcollected_df.columns)
-            msdcolumnscollected.append(MSDcolumns)
+            if not meansquaredis.empty:
+                MSDcolumns = [i + currentlength for i in range(1, len(meansquaredis.columns) + 1)]
+                if currentlength == 0:
+                    MSDcollected_df = pd.DataFrame(meansquaredis, columns= np.arange(0,len(meansquaredis.columns) + 1))
+                else:
+                    MSDcollected_df[MSDcolumns] = meansquaredis
+                Trajcollected.append(traj)
+                alphacollected.append(alpha)
+                video += 1
+                currentlength = len(MSDcollected_df.columns)
+                msdcolumnscollected.append(MSDcolumns)
     MSDcollected_df = MSDcollected_df.dropna(axis = 'columns', how = 'all')
     Trajcollected_df = pd.concat(Trajcollected)
     Trajcollected_df = Trajcollected_df.dropna(axis = 'columns', how = 'all')
@@ -351,7 +359,7 @@ for bp in bpc:
 axlab =0
 for n, row in enumerate(ax): 
     for j, ax in enumerate(row):
-        ax.text(-0.2, 1, r'\textbf{'+ string.ascii_lowercase[axlab]+'}', transform=ax.transAxes, 
+        ax.text(-0.2, 1, r'\textbf{'+ string.ascii_uppercase[axlab]+'}', transform=ax.transAxes, 
             size=8, weight='bold')
         axlab+=1
 fig1.tight_layout()
@@ -388,7 +396,7 @@ ax2[1].yaxis.set_ticks_position('both')
 ax2[1].xaxis.set_ticks_position('both')
 ax2[1].tick_params(which='both', axis="both", direction="in")
 ax2[1].set_yscale('linear')
-ax2[1].set_ylim(0,2)
+ax2[1].set_ylim(0,2.5)
 ax2[1].set_xticklabels(['100 bp', '250 bp', '500 bp'])
 ax2[1].set_xticks([1.5, 4.5, 7.5])
 ax2[1].set(ylabel=r'$\alpha$')
@@ -403,9 +411,9 @@ hR, = ax2[0].plot([1,1],'r-')
 ax2[0].legend((hB, hR),(r'$0<\Updelta t\mathrm{ \: (s) }<1$', r'$1<\Updelta t \mathrm{ \: (s) }<10$'),frameon = False,loc ='upper right')
 hB.set_visible(False)
 hR.set_visible(False)
-ax2[1].yaxis.set_major_locator(MaxNLocator(nbins = 4))
+ax2[1].yaxis.set_major_locator(MaxNLocator(nbins = 5))
 for n,ax in enumerate(ax2): 
-    ax.text(-0.13, 1, r'\textbf{'+ string.ascii_lowercase[n+3]+'}', transform=ax.transAxes, 
+    ax.text(-0.13, 1, r'\textbf{'+ string.ascii_uppercase[n+3]+'}', transform=ax.transAxes, 
             size=8, weight='bold')
         
 fig2.tight_layout()

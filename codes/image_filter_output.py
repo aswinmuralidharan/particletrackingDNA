@@ -6,7 +6,6 @@ Created on Mon May 27 13:19:50 2019
 """
 from __future__ import division, unicode_literals, print_function  # for compatibility with Python 2 and 3
 import pims
-import imageio
 import os
 import numpy as np
 from scipy.ndimage.filters import uniform_filter1d, correlate1d
@@ -69,13 +68,14 @@ def bandpass(image, lshort, llong, threshold=None, truncate=4):
     result2    = np.where(result1 >= threshold, result1, 0) #Apply bandpass filter 
     return result2, result1, background, gauss              #Return processed image, gaussian fit, and background
 
-bp    = '250bp'
-video = [15] # video number
+#bp    = '250bp'
+bp = 'MCF7500bp'
+video = np.arange(1,106) # video number
 N = 350 #number of frames 
 
 filepath = '/Volumes/Samsung_T5/Experimental Data/Hans/'
 for j in video:
-    frames   = pims.ImageSequence(filepath + 'B_raw_tiff/'+str(bp)+'/mov_'+str(j)+'/*.tif', as_grey=True)
+    frames   = pims.ImageSequence(filepath + 'B_raw_tiff/'+str(bp)+'/Exp'+str(j)+'/*.tif', as_grey=True)
     for dirs in ['/mov_'+str(j)]:
         if not os.path.exists(filepath + 'C_processed_tiff/' + str(bp) + dirs):
             os.makedirs(filepath + 'C_processed_tiff/' + str(bp) + dirs)

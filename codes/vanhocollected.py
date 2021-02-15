@@ -74,13 +74,16 @@ def kurtosis(data):
 Create figure with required size and arrangement
 """
 fig1,((ax1, ax2), (ax3, ax4)) = plt.subplots(2,2, figsize=(3.375,3.375))
-bpc = ['100bp' , '250bp', '500bp']
-bpcs = ['100 bp' , '250 bp', '500 bp']
+#bpc = ['100bp' , '250bp', '500bp']
+#bpcs = ['100 bp' , '250 bp', '500 bp']
+bpc = ['MCF7500bp']
+bpcs = ['MCF7 500bp']
 mkfc = ['#fc8d59','#ffffbf', '#91bfdb']
 mkr = ['^' , 'o', 's']
 ax = (ax1, ax2, ax3, ax4)       
 Filepath = '/Volumes/Samsung_T5/Experimental Data/Hans'
 i = 0
+z= [2,1,0] 
 """
 Looping over files
 
@@ -107,18 +110,18 @@ for bp in bpc:
     x_his = np.abs(x.to_numpy()/0.001)
     counts,bin_edges = np.histogram(x_his,bins = np.arange(0,300,20), density = True)
     bin_centres = (bin_edges[:-1] + bin_edges[1:])/2
-    bin_centres2 = bin_centres[np.where(bin_centres<=100)]
+    bin_centres2 = bin_centres[np.where(bin_centres<=150)]
     """
     Fitting Gaussian part
     """
-    counts2 = counts[np.where(bin_centres<=100)]
+    counts2 = counts[np.where(bin_centres<=150)]
     bin_centres3 = np.arange(0,200)
     popt, pcov = curve_fit(fitGaussian, bin_centres2, counts2, [0.1,30])
     """
     Fitting exponential part
     """
-    bin_centres4 = bin_centres[np.where(bin_centres >=100)]
-    counts4 = counts[np.where((bin_centres >=100))]
+    bin_centres4 = bin_centres[np.where(bin_centres >=0)]
+    counts4 = counts[np.where((bin_centres >=0))]
     popt2, pcov2 = curve_fit(fitexp, bin_centres4, counts4, [0.1,30])
     bin_centres5 = np.arange(0,250)
     
@@ -135,7 +138,7 @@ for bp in bpc:
     ax[i].xaxis.set_ticks_position('both')
     ax[i].tick_params(which='both', axis="both", direction="in")
     ax[i].set_yscale('log')
-    ax[i].set_ylim(1e-5,0.1)
+    ax[i].set_ylim(1e-4,0.1)
     ax[i].set_xlim(0,250)
     ax[i].set(xlabel=r'$\left |\Updelta x\right|$ (nm) ',
             ylabel=r'$P(\left |\Updelta x\right|, \Updelta t)$ (nm$^{-1}$) ')
@@ -146,7 +149,7 @@ for bp in bpc:
     Evaluate kurtosis by looping over different lag times
     """
     kurt=[]
-    for tau in np.arange(1,51):
+    for tau in np.arange(1,21):
         for filename in os.listdir(directory):
             if not filename.startswith('.'):
                 vanho = vanhove(os.path.join(directory, filename),tau)         
@@ -156,7 +159,7 @@ for bp in bpc:
     """
     Plotting kurtosis
     """
-    ax4.plot(np.arange(1,51)/10, kurt, marker = mkr[i], markerfacecolor = mkfc[i], markeredgecolor = 'k', linestyle = 'None', label = bps)
+    ax4.plot(np.arange(1,21)/10, kurt, marker = mkr[i], markerfacecolor = mkfc[i], markeredgecolor = 'k', linestyle = 'None', label = bps,zorder=z[i])
     i+=1
 """
 Label expressions on the plot in ax3
@@ -168,15 +171,15 @@ ax1.text(0.95, 0.65, r'$e^{-\left|\Updelta x\right|/\sigma}$',  verticalalignmen
          multialignment="left",
          transform=ax1.transAxes)
 
-ax2.text(215, 3e-4, '*',  verticalalignment='top', horizontalalignment='right',
-         multialignment="left")
+#ax2.text(215, 3e-4, '*',  verticalalignment='top', horizontalalignment='right',
+#         multialignment="left")
 ax3.text(190, 8e-4, '*',  verticalalignment='top', horizontalalignment='right',
      multialignment="left")
 """
 Create subfigure labels
 """
 for n, ax in enumerate((ax1,ax2,ax3, ax4)):   
-    ax.text(-0.35, 1, r'\textbf{'+ string.ascii_lowercase[n]+'}', transform=ax.transAxes, 
+    ax.text(-0.35, 1, r'\textbf{'+ string.ascii_uppercase[n]+'}', transform=ax.transAxes, 
             size=8, weight='bold')
 """
 Kurtosis plot style
@@ -185,8 +188,8 @@ ax4.yaxis.set_ticks_position('both')
 ax4.xaxis.set_ticks_position('both')
 ax4.tick_params(which='both', axis="both", direction="in")
 ax4.set_xscale('log')
-ax4.set_ylim(0.5,2)
-ax4.set_xlim(0.1,5)
+ax4.set_ylim(0.0,1.5)
+ax4.set_xlim(0.1,2)
 ax4.set(xlabel=r'$\Updelta t$ (s) ',
         ylabel=r'$\kappa$ ')
 ax4.legend(loc ='upper right', frameon = False,  handletextpad=0.1)

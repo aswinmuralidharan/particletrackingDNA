@@ -62,8 +62,10 @@ def trajectory(pos, pid, max_lagtime,video, pos_columns):
 
 
 Filepath = '/Volumes/Samsung_T5/Experimental Data/Hans'
-bps = ['100bp', '250bp','500bp']
-bpcs = ['100 bp', '250 bp','500 bp']
+#bps = ['100bp', '250bp','500bp']
+#bpcs = ['100 bp', '250 bp','500 bp']
+bps = ['MCF7500bp']
+bpcs = ['MCF7 500bp']
 mpp = 0.16
 fps = 10
 max_lagtime = 100
@@ -74,6 +76,7 @@ axnum=0
 fig1, (ax1) = plt.subplots(1,1, figsize=(3.375,0.6*3.375))
 mkfc = ['#fc8d59','#ffffbf', '#91bfdb']
 mkr = ['^' , 'o', 's']
+z=[2,1,0]
 for bp in bps:      
     j=0
     for tau in [2]:
@@ -115,7 +118,7 @@ for bp in bps:
             xdisp = pd.concat(xdisp, axis =1)
             ydisp = pd.concat(ydisp, axis =1)
             corr.append((xdisp.mul(xdisp.shift(delta)).mean().mean()+ydisp.mul(ydisp.shift(delta)).mean().mean())/(xdisp.mul(xdisp.shift(0)).mean().mean()+ydisp.mul(ydisp.shift(0)).mean().mean()))
-        ax1.plot(np.arange(0,10,0.1)/(tau/10),corr,linestyle = 'None', marker = mkr[i], markerfacecolor = mkfc[i], markeredgecolor = 'k', label = bp)
+        ax1.plot(np.arange(0,10,0.1)/(tau/10),corr,linestyle = 'None', marker = mkr[i], markerfacecolor = mkfc[i], markeredgecolor = 'k', label = bp,zorder=z[i])
         j+=1
     i+=1
 ax1.yaxis.set_ticks_position('both')

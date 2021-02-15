@@ -93,15 +93,18 @@ def anglevec(filename, lagtime = 1, maxtime = 100, mpp=0.16, ensemble=False, bin
         
 
 Filepath = '/Volumes/Samsung_T5/Experimental Data/Hans'
-bpc = ['100bp' , '250bp', '500bp']
-bpcs = ['100 bp' , '250 bp', '500 bp']
+#bpc = ['100bp' , '250bp', '500bp']
+#bpcs = ['100 bp' , '250 bp', '500 bp']
+bpc = ['MCF7500bp']
+bpcs = ['MCF7 500bp']
 mkfc = ['#fc8d59','#ffffbf', '#91bfdb']
 mkr = ['^' , 'o', 's']
-fig1,(ax1,ax2,ax3) = plt.subplots(1, 3,figsize=(3.375*2,3.375*2/3))        
+fig1,((ax1,ax2),(ax3,ax4)) = plt.subplots(2, 2,figsize=(3.375,3.375))        
 ax = (ax1, ax2, ax3)    
 i=0
 for bp in bpc:
-    bps = bpcs[i]    
+    bps = bpcs[i]   
+    probangle = []
     for dirs in ['/MSDcollected', '/Trajcollected','/MSDindividual', '/Figures' ]:
         if not os.path.exists(Filepath + '/E_output_data/' + str(bp) + dirs):
             os.makedirs(Filepath + '/E_output_data/' + str(bp) + dirs)
@@ -112,28 +115,34 @@ for bp in bpc:
         if not filename.startswith('.'):
             angle = anglevec(os.path.join(directory, filename)) 
     x_his = angle.to_numpy()
-    counts,bin_edges = np.histogram(x_his,bins = np.arange(0,2.001*math.pi,math.pi/20), density = True)
+    counts,bin_edges = np.histogram(x_his,bins = np.arange(0,2.001*math.pi,math.pi/16), density = True)
     bin_centres = (bin_edges[:-1] + bin_edges[1:])/2
     ax1.plot(bin_centres,counts,marker = mkr[i], markerfacecolor = mkfc[i], markeredgecolor = 'k', linestyle = 'None', label = bps )
     for filename in os.listdir(directory):
         if not filename.startswith('.'):
             angle = anglevec(os.path.join(directory, filename),5) 
     x_his = angle.to_numpy()
-    counts,bin_edges = np.histogram(x_his,bins = np.arange(0,2.001*math.pi,math.pi/20), density =True)
+    counts,bin_edges = np.histogram(x_his,bins = np.arange(0,2.001*math.pi,math.pi/16), density =True)
     bin_centres = (bin_edges[:-1] + bin_edges[1:])/2
     ax2.plot(bin_centres,counts,marker = mkr[i], markerfacecolor = mkfc[i], markeredgecolor = 'k', linestyle = 'None', label = bps)
     for filename in os.listdir(directory):
         if not filename.startswith('.'):
             angle = anglevec(os.path.join(directory, filename),20) 
     x_his = angle.to_numpy()
-    counts,bin_edges = np.histogram(x_his,bins = np.arange(0,2.001*math.pi,math.pi/20), density = True)
+    counts,bin_edges = np.histogram(x_his,bins = np.arange(0,2.001*math.pi,math.pi/16), density = True)
     bin_centres = (bin_edges[:-1] + bin_edges[1:])/2
     ax3.plot(bin_centres,counts,marker = mkr[i], markerfacecolor = mkfc[i], markeredgecolor = 'k', linestyle = 'None', label = bps)
-    i+=1 
-
-ax1.legend(loc ='upper left', frameon = False,  handletextpad=0.1)       
+    for temtime in np.arange(5,55,5):
+        for filename in os.listdir(directory):
+            if not filename.startswith('.'):
+                angle = anglevec(os.path.join(directory, filename),temtime)
+        x_his = angle.to_numpy()
+        counts,bin_edges = np.histogram(x_his,bins = np.arange(0,2.001*math.pi,math.pi/16), density = True)
+        probangle.append((sum(counts[0:4])+sum(counts[-4:]))*math.pi/16)
+    ax4.plot(np.arange(5,55,5)/10,probangle,marker = mkr[i], markerfacecolor = mkfc[i], markeredgecolor = 'k', linestyle = 'None', label = bps)
+    i+=1       
 for n, ax in enumerate((ax1,ax2,ax3)):   
-    ax.text(-0.2, 1, r'\textbf{'+ string.ascii_lowercase[n]+'}', transform=ax.transAxes, 
+    ax.text(-0.4, 1, r'\textbf{'+ string.ascii_lowercase[n]+'}', transform=ax.transAxes, 
             size=8, weight='bold')             
     ax.yaxis.set_ticks_position('both')
     ax.xaxis.set_ticks_position('both')
@@ -155,8 +164,17 @@ ax1.text(0.95, 0.9, r'$\Updelta t = 0.1$ s', verticalalignment='top', horizontal
 ax2.text(0.95, 0.9, r'$\Updelta t = 0.5$ s', verticalalignment='top', horizontalalignment='right',
          multialignment="left",
          transform=ax2.transAxes)
-ax3.text(0.95, 0.9, r'$\Updelta t = 1$ s', verticalalignment='top', horizontalalignment='right',
+ax3.text(0.95, 0.9, r'$\Updelta t = 2$ s', verticalalignment='top', horizontalalignment='right',
          multialignment="left",
          transform=ax3.transAxes)
+ax4.text(-0.4, 1, r'\textbf{'+ string.ascii_lowercase[3]+'}', transform=ax4.transAxes, size=8, weight='bold')
+ax4.yaxis.set_ticks_position('both')
+ax4.xaxis.set_ticks_position('both')
+ax4.tick_params(which='both', axis="both", direction="in")
+ax4.set_ylim(0,1)
+ax4.set_xlim(0,6)
+ax4.set(xlabel=r'$\Updelta t$ (s) ',
+            ylabel=r'$P(-\pi/4< \theta < \pi/4)$')
+ax4.legend(loc ='lower right', frameon = False,  handletextpad=0.1) 
 plt.tight_layout()
 fig1.savefig(directory3 + '/angle.pdf')

@@ -12,20 +12,21 @@ import trackpy as tp
 import os
 
 Filepath = '/Volumes/Samsung_T5/Experimental Data/Hans'
-bp = '100bp'  # Base pair to process
+bp = 'MCF7500bp'  # Base pair to process
 directory = Filepath + '/D_ROI_tiff/' + str(bp) 
 tp.quiet()
 for filename in os.listdir(directory):
     """Import data series """
+    print(filename)
     frames = pims.ImageSequence(os.path.join(directory, filename) + '/*.tif', as_grey=True)
-    f = tp.batch(frames[0:350], 15, minmass=200, maxsize=4, noise_size=1, smoothing_size=15)
+    f = tp.batch(frames[0:350], 11, minmass=200, maxsize=4, noise_size=1, smoothing_size=15)
 
     """Link features into particle trajectories"""
     t = tp.link_df(f, 2, memory=3)
     """ max displacement 2 pixels
     # memory missed particle is 3"""
 
-    tf = tp.filter_stubs(t, 50)
+    tf = tp.filter_stubs(t, 85)
     """Filter out spurious tracks minimum of 50 frames"""
 
     d = tp.compute_drift(tf)
