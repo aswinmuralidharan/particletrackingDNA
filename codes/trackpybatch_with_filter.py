@@ -12,9 +12,9 @@ import trackpy as tp
 import os
 
 Filepath = '/Volumes/Samsung_T5/Experimental Data/Hans'
-bp = 'MCF7500bp'  # Base pair to process
-directory = Filepath + '/D_ROI_tiff/' + str(bp) 
-tp.quiet()
+bp = 'MCF10A500bp'  # Base pair to process
+directory = Filepath + '/D_ROI_tiff/' + str(bp) # The input directory after background image corrections
+tp.quiet() # Set the trackpy steps off so that the code runs faster
 for filename in os.listdir(directory):
     """Import data series """
     print(filename)
