@@ -222,10 +222,10 @@ Main code
 mpp = 0.16
 fps = 10
 max_lagtime = 100
-#bpc = ['100bp' , '250bp', '500bp']
-#bpcs = ['100 bp' , '250 bp', '500 bp']
-bpc = ['MCF7500bp']
-bpcs = ['MCF7 500bp']
+bpc = ['100bp' , '250bp', '500bp']
+bpcs = ['100 bp' , '250 bp', '500 bp']
+#bpc = ['MCF7500bp']
+#bpcs = ['MCF7 500bp']
 fig1, ax = plt.subplots(2,3, figsize=(3.375*2,3.375*4/3))
 fig2, ax2 = plt.subplots(1,2, figsize=(3.375*2,3.375*0.6))
 i=0
@@ -363,7 +363,7 @@ for n, row in enumerate(ax):
             size=8, weight='bold')
         axlab+=1
 fig1.tight_layout()
-fig1.savefig(directory3 + '/contour2.pdf')
+#fig1.savefig(directory3 + '/contour2.pdf')
 
 bp1 = ax2[0].boxplot([D100_1, D100_2], positions = [1, 2], widths = 0.6, showfliers = False)
 setBoxColors(bp1)
@@ -417,8 +417,8 @@ for n,ax in enumerate(ax2):
             size=8, weight='bold')
         
 fig2.tight_layout()
-fig2.savefig(directory3 + '/boxplot.pdf')
-fig2.savefig(directory3 + '/boxplot.png',dpi=300)
+#fig2.savefig(directory3 + '/boxplot.pdf')
+#fig2.savefig(directory3 + '/boxplot.png',dpi=300)
 X = np.array([1,3,5])
 
 cagA100_1 =  np.size(A100_1[A100_1<0.4])/np.size(A100_1)*100
@@ -469,7 +469,7 @@ ax3.tick_params(which="both", axis="both", direction="in")
 ax3.set_ylabel('Percentage')
 plt.xticks([0.125, 1.125, 2.125], ('100 bp', '250 bp', '500 bp'))
 ax3.legend(loc='upper center',frameon= False, bbox_to_anchor=(0.5, 1.4), ncol = 3)
-fig3.savefig(directory3 + '/barchart.png', bbox_inches = "tight",dpi=300)
+#fig3.savefig(directory3 + '/barchart.png', bbox_inches = "tight",dpi=300)
 print(stats.ttest_ind(A100_1, A100_2))
 print(stats.ttest_ind(A250_1, A250_2))
 print(stats.ttest_ind(A500_1, A500_2))

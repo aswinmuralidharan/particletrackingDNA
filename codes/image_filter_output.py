@@ -2,7 +2,7 @@
 """
 Created on Mon May 27 13:19:50 2019
 
-@author: huite
+@author: amuralidharan
 """
 from __future__ import division, unicode_literals, print_function  # for compatibility with Python 2 and 3
 import pims
@@ -68,21 +68,26 @@ def bandpass(image, lshort, llong, threshold=None, truncate=4):
     result2    = np.where(result1 >= threshold, result1, 0) #Apply bandpass filter 
     return result2, result1, background, gauss              #Return processed image, gaussian fit, and background
 
-#bp    = '250bp'
-bp = 'MCF7500bp'
-video = np.arange(1,106) # video number
-N = 350 #number of frames 
 
+bp = 'MCF10A500bp' # Enter the folder name
+N = 350 # Number of frames 
 filepath = '/Volumes/Samsung_T5/Experimental Data/Hans/'
-for j in video:
-    frames   = pims.ImageSequence(filepath + 'B_raw_tiff/'+str(bp)+'/Exp'+str(j)+'/*.tif', as_grey=True)
-    for dirs in ['/mov_'+str(j)]:
-        if not os.path.exists(filepath + 'C_processed_tiff/' + str(bp) + dirs):
-            os.makedirs(filepath + 'C_processed_tiff/' + str(bp) + dirs)
-    print('processing video', j )
-    for i in range(N):
-            image = frames[i]
-            a, b, c, d = bandpass(image,1,15, threshold = 40)
-            im = Image.fromarray(a)
-            im.save(filepath + 'C_processed_tiff/'+str(bp)+'/mov_'+str(j)+'/mov_'+str(j)+'_{0}.tiff'.format(i))
+directory = filepath + '/B_raw_tiff/' + str(bp) + '/'
+directory2 = filepath + 'C_processed_tiff/' + str(bp) +'/'
+# Loop through the directory
+for filename in os.listdir(directory):
+    if not filename.startswith('.'):
+        # Open the image sequence from the directory as tif images. 
+        frames   = pims.ImageSequence(directory + filename +'/*.tif', as_grey=True)
+        # If the folders do not exist in the directory, create them
+        for dirs in [filename]:
+            if not os.path.exists(directory2 + dirs):
+                os.makedirs(directory2 + dirs)
+        print('processing video' + filename)
+        # Apply the bandpass filter
+        for i in range(N):
+                image = frames[i]
+                a, b, c, d = bandpass(image,1,15, threshold = 40)
+                im = Image.fromarray(a)
+                im.save(directory2 + filename+ '/mov_' + str(1) +'_{0}.tiff'.format(i))
 
