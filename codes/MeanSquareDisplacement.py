@@ -19,7 +19,7 @@ import matplotlib as mpl
 plt.style.use('aswinplotstyle') # Custom plot style file. Comment out/use your own style file. 
 os.environ['PATH'] = os.environ['PATH'] + ':/Library/TeX/texbin' # LaTeX file path. Replace with your own pathfile.
 
-# Style parameters for the plots. 
+""" Style parameters for the plots. """
 plt.rc('font', family='sans-serif')
 plt.rc('xtick', labelsize=7)
 plt.rc('ytick', labelsize=7)
@@ -41,7 +41,7 @@ plt.rcParams['axes.linewidth'] = 1
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['ps.fonttype'] = 42
 
-# Mean square displacement code
+""" Mean square displacement code """
 def _msd_iter(pos, lagtimes):
     for lt in lagtimes:
         diff = pos[lt:] - pos[:-lt]
@@ -92,7 +92,7 @@ def msd(pos, max_lagtime):
     result['msd'] = result[result_columns[-len(pos_columns):]].sum(1)
     return result
 
-# General function for power law
+""" General function for power law """
 def power_law(x,alpha, A):
     return A*np.power(x, alpha)
 
@@ -128,17 +128,20 @@ def imsd(filename, mpp, fps, video, directory, max_lagtime=100):
     msds = []
     alpha = []
     index=0
-    #Looping through the dataframe with the position data
+    """Looping through the dataframe with the position data"""
     for pid, ptraj in traj.groupby('particle'):
         pos = ptraj.set_index('frame')[pos_columns] * mpp
         pos = pos.reindex(np.arange(pos.index[0], 1 + pos.index[-1])).to_numpy()
         msdtemp = msd(pos, max_lagtime).replace(0, 'nan')
         msdtemp = msdtemp.dropna(axis = 'columns', how = 'all')
-        # Drop empty files to avoid errors
+        """ Drop empty files to avoid errors """
         if len(msdtemp.columns) == 1:
             r_squaredtemp = 0
         else:
-            # Make sure that the power law exponent is positive (at the start). Set a threshold for r squared values to reject trajectories if needed
+            """
+            Make sure that the power law exponent is positive (at the start). Set a threshold for r squared 
+            values to reject trajectories if needed
+            """
             alphatemp, r_squaredtemp = powerfit(msdtemp, 0, 8)
         if r_squaredtemp > 0:
             if alphatemp[0] > 0:
@@ -167,9 +170,21 @@ i = 0
 #bpcs = ['100 bp', '250 bp', '500 bp']
 bpc = ['MCF7500bp', 'MCF10A500bp']
 bpcs = ['MCF7 500bp', 'MCF10A 500bp']
+
+"""
+Initialize plots. Change as necessary
+
+"""
 fig1, (ax1,ax2,ax3) = plt.subplots(1,3, figsize=(3.375*2,3.375*2.2/3))
 ax= (ax1,ax2,ax3)
+
+"""
+Looping through the foldernames given in the list bpc
+"""
 for bp in bpc:
+    """
+    Create folders which arent there
+    """
     for dirs in ['/MSDcollected', '/Trajcollected','/MSDindividual', '/Figures' ]:
         if not os.path.exists(Filepath + '/E_output_data/' + str(bp) + dirs):
             os.makedirs(Filepath + '/E_output_data/' + str(bp) + dirs)
@@ -188,7 +203,6 @@ for bp in bpc:
     """
     Obtain the mean square displacement and trajectory translated to zero as two 
     dataframes
-    --------------------------------------------------------------------------------
     """
     
     for filename in os.listdir(directory):
@@ -211,7 +225,6 @@ for bp in bpc:
     totaltracks = len(MSDcollected_df.columns)
     """
     Plotting the mean square displacement as ensemble average and individual
-    --------------------------------------------------------------------------------
     """
     
     ax[i].plot(MSDcollected_df, color = 'lightgray')
@@ -234,7 +247,7 @@ for bp in bpc:
     locmin = LogLocator(base=10.0,subs=tuple(np.arange(0.1, 1, 0.1)),numticks=5)
     ax[i].xaxis.set_minor_locator(locmin)
     ax[i].xaxis.set_minor_formatter(NullFormatter())
-    # Print the early and late diffusion coefficient and exponent. 
+    """ Print the early and late diffusion coefficient and exponent. """
     x = np.arange(0,100)/10
     y = np.array(MSDcollected_df.mean(axis=1))
     pars1, cov1 = curve_fit(f = power_law, xdata = x[20:50], ydata = y[20:50], p0=[0, 0], bounds=(-np.inf, np.inf))
