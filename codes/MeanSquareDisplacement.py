@@ -168,8 +168,8 @@ Filepath = '/Volumes/Samsung_T5/Experimental Data/Hans'
 i = 0
 #bpc = ['100bp', '250bp', '500bp']
 #bpcs = ['100 bp', '250 bp', '500 bp']
-bpc = ['MCF7500bp', 'MCF10A500bp']
-bpcs = ['MCF7 500bp', 'MCF10A 500bp']
+bpc = ['500bp','MCF7500bp', 'MCF10A500bp']
+bpcs = ['CHO 500 bp','MCF7 500 bp', 'MCF10A 500 bp']
 
 """
 Initialize plots. Change as necessary
@@ -177,7 +177,9 @@ Initialize plots. Change as necessary
 """
 fig1, (ax1,ax2,ax3) = plt.subplots(1,3, figsize=(3.375*2,3.375*2.2/3))
 ax= (ax1,ax2,ax3)
-
+fig2, (ax4) = plt.subplots (1,1, figsize=(3.375*2/3,3.375*2.2/3)) 
+colors = ['#fc8d59','#ffffbf', '#91bfdb']
+mkr = ['^' , 'o', 's']
 """
 Looping through the foldernames given in the list bpc
 """
@@ -247,6 +249,19 @@ for bp in bpc:
     locmin = LogLocator(base=10.0,subs=tuple(np.arange(0.1, 1, 0.1)),numticks=5)
     ax[i].xaxis.set_minor_locator(locmin)
     ax[i].xaxis.set_minor_formatter(NullFormatter())
+    
+    ax4.plot(MSDcollected_df.mean(axis = 1) , marker = mkr[i] , markeredgecolor = 'black' , markerfacecolor = colors[i], linestyle = 'None',label = bpcs[i])
+    ax4.set_xscale('log')
+    ax4.set_yscale('log')
+    ax4.set(ylabel=r'$\langle \overline {\Updelta \mathbf{r}^2(\Updelta t)}\rangle$ ($\mathrm{\upmu}$m$^2$)',
+            xlabel=r'$\Updelta t$ (s)')
+    ax4.set_ylim((1e-3, 0.1))
+    ax4.yaxis.set_ticks_position('both')
+    ax4.xaxis.set_ticks_position('both')
+    ax4.tick_params(which="both", axis="both", direction="in")
+    #ax4.set_aspect(0.5, adjustable='box')
+    ax4.legend(loc ='upper left', frameon = False,  handletextpad=0.1)
+             
     """ Print the early and late diffusion coefficient and exponent. """
     x = np.arange(0,100)/10
     y = np.array(MSDcollected_df.mean(axis=1))
@@ -255,6 +270,6 @@ for bp in bpc:
     pars2, cov2 = curve_fit(f = power_law, xdata = x[0:8], ydata = y[0:8], p0=[0, 0], bounds=(-np.inf, np.inf))
     print(pars2)
     i+=1
-plt.tight_layout()
+fig1.tight_layout()
 fig1.savefig(directory3 + '/MSD.png',dpi=300)
-#fig1.savefig(directory3 + '/MSD.eps')
+fig2.savefig(directory3 + '/MSDMean.png',dpi=300)
