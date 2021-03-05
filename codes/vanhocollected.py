@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import string
+#from scipy.stats import kurtosis 
 
 plt.style.use('aswinplotstyle')
 
@@ -62,22 +63,20 @@ def vanhove(filename, lagtime = 1, maxtime = 100, mpp=0.16):
     vanho = pd.concat(vanho, ignore_index= True).dropna()
     return vanho
 
-def kurtosis(data):
-    """
-    Return excess kurtosis of the data
-    """
+def kurtosis(data, fisher = True):
+    #Return excess kurtosis of the data
     x_4 = np.power(data,4)
     x_2 = np.power(data,2)
-    kurtosis = np.mean(x_4)/(np.mean(x_2)**2)-3
+    kurtosis = np.nanmean(x_4)/(np.nanmean(x_2)**2)-3
     return kurtosis
 """
 Create figure with required size and arrangement
 """
 fig1,((ax1, ax2), (ax3, ax4)) = plt.subplots(2,2, figsize=(3.375,3.375))
-#bpc = ['100bp' , '250bp', '500bp']
-#bpcs = ['100 bp' , '250 bp', '500 bp']
-bpc = ['MCF7500bp']
-bpcs = ['MCF7 500bp']
+bpc = ['100bp' , '250bp', '500bp']
+bpcs = ['100 bp' , '250 bp', '500 bp']
+#bpc = ['MCF10A500bp','MCF7500bp']
+#bpcs = ['MCF10A 500 bp','MCF7 500bp']
 mkfc = ['#fc8d59','#ffffbf', '#91bfdb']
 mkr = ['^' , 'o', 's']
 ax = (ax1, ax2, ax3, ax4)       
@@ -89,6 +88,7 @@ Looping over files
 
 """
 for bp in bpc:
+    x=[]
     """
     Checking for directories
     
@@ -138,7 +138,7 @@ for bp in bpc:
     ax[i].xaxis.set_ticks_position('both')
     ax[i].tick_params(which='both', axis="both", direction="in")
     ax[i].set_yscale('log')
-    ax[i].set_ylim(1e-4,0.1)
+    ax[i].set_ylim(1e-5,0.1)
     ax[i].set_xlim(0,250)
     ax[i].set(xlabel=r'$\left |\Updelta x\right|$ (nm) ',
             ylabel=r'$P(\left |\Updelta x\right|, \Updelta t)$ (nm$^{-1}$) ')
@@ -149,17 +149,20 @@ for bp in bpc:
     Evaluate kurtosis by looping over different lag times
     """
     kurt=[]
-    for tau in np.arange(1,21):
+    for tau in np.arange(1,15):
+        vanho=[]
+        x=[]
+        x_his=[]
         for filename in os.listdir(directory):
             if not filename.startswith('.'):
                 vanho = vanhove(os.path.join(directory, filename),tau)         
         x =  vanho['x'].append(vanho['y']).reset_index()       
-        x_his = np.abs(x.to_numpy()/0.001)
-        kurt.append(kurtosis(x_his))
+        x_his = (x[0].to_numpy()/0.001)
+        kurt.append(kurtosis(x_his, fisher = True))
     """
     Plotting kurtosis
     """
-    ax4.plot(np.arange(1,21)/10, kurt, marker = mkr[i], markerfacecolor = mkfc[i], markeredgecolor = 'k', linestyle = 'None', label = bps,zorder=z[i])
+    ax4.plot(np.arange(1,15)/10, kurt, marker = mkr[i], markerfacecolor = mkfc[i], markeredgecolor = 'k', linestyle = 'None', label = bps,zorder=z[i])
     i+=1
 """
 Label expressions on the plot in ax3
@@ -187,8 +190,9 @@ Kurtosis plot style
 ax4.yaxis.set_ticks_position('both')
 ax4.xaxis.set_ticks_position('both')
 ax4.tick_params(which='both', axis="both", direction="in")
+ax4.set_yscale('log')
 ax4.set_xscale('log')
-ax4.set_ylim(0.0,1.5)
+ax4.set_ylim(0.5,100)
 ax4.set_xlim(0.1,2)
 ax4.set(xlabel=r'$\Updelta t$ (s) ',
         ylabel=r'$\kappa$ ')

@@ -65,10 +65,10 @@ def trajectory(pos, pid, max_lagtime,video, pos_columns):
 # Filepath and files to process
 
 Filepath = '/Volumes/Samsung_T5/Experimental Data/Hans'
-#bps = ['100bp', '250bp','500bp']
-#bpcs = ['100 bp', '250 bp','500 bp']
-bps = ['MCF7500bp']
-bpcs = ['MCF7 500bp']
+bps = ['100bp', '250bp','500bp']
+bpcs = ['100 bp', '250 bp','500 bp']
+#bps = ['MCF7500bp']
+#bpcs = ['MCF7 500bp']
 mpp = 0.16
 fps = 10
 max_lagtime = 100
@@ -206,5 +206,5 @@ ax2[2].set(xlabel=r'$\beta$')
 fig1.tight_layout()  
 fig2.tight_layout()   
 
-fig1.savefig(directory3 + '/Ergodic.pdf')  
+fig1.savefig(directory3 + '/Ergodic.png',dpi = 300)  
 fig2.savefig(directory3 + '/aging.pdf')

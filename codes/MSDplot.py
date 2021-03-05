@@ -15,10 +15,10 @@ import string
 from matplotlib.ticker import LogLocator, NullFormatter
 import matplotlib as mpl
 
-plt.style.use('aswinplotstyle')
+plt.style.use('aswinplotstyle') # Custom plot style file. Comment out/use your own style file. 
+os.environ['PATH'] = os.environ['PATH'] + ':/Library/TeX/texbin' # LaTeX file path. Replace with your own pathfile.
 
-os.environ['PATH'] = os.environ['PATH'] + ':/Library/TeX/texbin'
-
+# Style parameters for the plots. 
 plt.rc('font', family='sans-serif')
 plt.rc('xtick', labelsize=7)
 plt.rc('ytick', labelsize=7)
@@ -29,8 +29,8 @@ plt.rc('lines', linewidth=1)
 plt.rc('lines', markersize=6)
 plt.rc('text', usetex = True)
 plt.rcParams['text.latex.preamble'] = [
-       r'\usepackage{sansmath}',  # load up the sansmath so that math -> helvet
-       r'\sansmath'               # <- tricky! -- gotta actually tell tex to use!
+       r'\usepackage{sansmath}',  
+       r'\sansmath'              
        r"\usepackage{amsmath}"
        r"\usepackage{textgreek}"
        r"\usepackage{upgreek}"
@@ -39,6 +39,8 @@ plt.rcParams['font.sans-serif'] = 'Helvetica, Avant Garde, Computer Modern Sans 
 plt.rcParams['axes.linewidth'] = 1
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['ps.fonttype'] = 42
+
+# Mean square displacement code
 def _msd_iter(pos, lagtimes):
     for lt in lagtimes:
         diff = pos[lt:] - pos[:-lt]
@@ -89,22 +91,32 @@ def msd(pos, max_lagtime):
     result['msd'] = result[result_columns[-len(pos_columns):]].sum(1)
     return result
 
+# General function for power law
 def power_law(x,alpha, A):
     return A*np.power(x, alpha)
 
-def powerfit(msd,fps=10):
+""" 
+Function for fitting power law. Input parameters are the mean square displacement dataframe and the frame rate of the camera. 
+The two other input parameters are the first and last index of the data to fit. 
+Choose the range of the range of the data to fit within the function at curve_fit. The R squared value of the fit is also computed 
+"""
+def powerfit(msd, a,b, fps=10):
     y = msd['msd']
     x = msd.index.values.astype('float64') / float(fps)
-    pars, cov = curve_fit(f = power_law, xdata = x[0:8], ydata = y[0:8], p0=[0, 0], bounds=(-np.inf, np.inf))
+    pars, cov = curve_fit(f = power_law, xdata = x[a:b], ydata = y[a:b], p0=[0, 0], bounds=(-np.inf, np.inf))
     result = pars
-    residuals = y[0:8] - power_law(x[0:8], *pars)
+    residuals = y[a:b] - power_law(x[a:b], *pars)
     ss_res = np.sum(residuals**2)
     #total sum of squares SStot
-    ss_tot = np.sum((y[0:8]-np.mean(y[0:8]))**2)
+    ss_tot = np.sum((y[a:b]-np.mean(y[a:b]))**2)
     #R-squared 
     r_squared = 1.0 - (ss_res / ss_tot)
     return result, r_squared
 
+
+"""
+Function for computing the time averaged mean square displacement.
+"""
 def imsd(filename, mpp, fps, video, directory, plotindividual=False, max_lagtime=100):
     statistic = 'msd'
     traj = pd.read_csv(filename)
@@ -118,17 +130,21 @@ def imsd(filename, mpp, fps, video, directory, plotindividual=False, max_lagtime
     alphasuper = []
     alphasub = []
     index=0
+    #Looping through the dataframe with the position data
     for pid, ptraj in traj.groupby('particle'):
         pos = ptraj.set_index('frame')[pos_columns] * mpp
         pos = pos.reindex(np.arange(pos.index[0], 1 + pos.index[-1])).to_numpy()
         msdtemp = msd(pos, max_lagtime).replace(0, 'nan')
         msdtemp = msdtemp.dropna(axis = 'columns', how = 'all')
+        # Drop empty files to avoid errors
         if len(msdtemp.columns) == 1:
             r_squaredtemp = 0
         else:
-            alphatemp, r_squaredtemp = powerfit(msdtemp)
+            # Make sure that the power law exponent is positive (at the start). Set a threshold for r squared values to reject trajectories if needed
+            alphatemp, r_squaredtemp = powerfit(msdtemp, 0, 8)
         if r_squaredtemp > 0:
             if alphatemp[0] > 0:
+                # Append results to list
                 alpha.append(alphatemp)
                 msds.append(msdtemp)
                 trajec.append(trajectory(pos, pid, max_lagtime,video, pos_columns))
@@ -190,10 +206,10 @@ def imsd(filename, mpp, fps, video, directory, plotindividual=False, max_lagtime
 
 Filepath = '/Volumes/Samsung_T5/Experimental Data/Hans'
 i = 0
-#bpc = ['100bp', '250bp', '500bp']
-#bpcs = ['100 bp', '250 bp', '500 bp']
-bpc = ['MCF7500bp']
-bpcs = ['MCF7 500bp']
+bpc = ['100bp', '250bp', '500bp']
+bpcs = ['100 bp', '250 bp', '500 bp']
+#bpc = ['MCF7500bp', 'MCF10A500bp']
+#bpcs = ['MCF7 500bp', 'MCF10A 500bp']
 fig1, (ax1,ax2,ax3) = plt.subplots(1,3, figsize=(3.375*2,3.375*2.2/3))
 ax= (ax1,ax2,ax3)
 for bp in bpc:
@@ -295,6 +311,7 @@ for bp in bpc:
     ax[i].xaxis.set_minor_locator(locmin)
     ax[i].xaxis.set_minor_formatter(NullFormatter())
     i+=1
+    print(Alphacollected_df.mean())
 plt.tight_layout()
 
 

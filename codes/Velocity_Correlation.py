@@ -62,10 +62,10 @@ def trajectory(pos, pid, max_lagtime,video, pos_columns):
 
 
 Filepath = '/Volumes/Samsung_T5/Experimental Data/Hans'
-#bps = ['100bp', '250bp','500bp']
-#bpcs = ['100 bp', '250 bp','500 bp']
-bps = ['MCF7500bp']
-bpcs = ['MCF7 500bp']
+bps = ['100bp', '250bp','500bp']
+bpcs = ['100 bp', '250 bp','500 bp']
+#bps = ['MCF7500bp']
+#bpcs = ['MCF7 500bp']
 mpp = 0.16
 fps = 10
 max_lagtime = 100
@@ -73,7 +73,7 @@ pos_columns = ['x', 'y']
 i = 0
 num_plots = 1
 axnum=0
-fig1, (ax1) = plt.subplots(1,1, figsize=(3.375,0.6*3.375))
+fig1, (ax1) = plt.subplots(1,1, figsize=(3.375,0.5*3.375))
 mkfc = ['#fc8d59','#ffffbf', '#91bfdb']
 mkr = ['^' , 'o', 's']
 z=[2,1,0]
@@ -88,7 +88,7 @@ for bp in bps:
         trajec = []
         corr = []
         corr0 = []
-        ax1.axhline(y=0, color='k', linestyle='dashdot')
+        #ax1.axhline(y=0, color='k', linestyle='dashdot')
         for dirs in ['/MSDcollected', '/Trajcollected','/MSDindividual', '/Figures' ]:
             if not os.path.exists(Filepath + '/E_output_data/' + str(bp) + dirs):
                 os.makedirs(Filepath + '/E_output_data/' + str(bp) + dirs)
@@ -130,5 +130,12 @@ ax1.set_xlim(0, 5)
 ax1.set_ylim(-0.5,1)
 ax1.set_yticks([-0.5, 0 , 0.5, 1])
 ax1.legend(loc ='upper right', frameon = False,  handletextpad=0.1)
+ax1.text(-0.16, 1, r'\textbf{'+ string.ascii_uppercase[4]+'}', transform=ax1.transAxes, 
+            size=8, weight='bold')
+corrfbmx = np.arange(0,10,0.01)/(tau/10)
+corrfbmy = []
+[corrfbmy.append(((corrfbmx1+1)**0.42 + (-(corrfbmx1-1))**0.42 - 2*(corrfbmx1)**0.42)/2) for corrfbmx1 in corrfbmx[0:20]]
+[corrfbmy.append(((corrfbmx1+1)**0.42 + (corrfbmx1-1)**0.42 - 2*(corrfbmx1)**0.42)/2) for corrfbmx1 in corrfbmx[20:]]
+ax1.plot(corrfbmx,corrfbmy, color = 'k')
 plt.tight_layout()
-fig1.savefig(directory3 + '/corr.pdf', dpi = 300)
+fig1.savefig(directory3 + '/corr.png', dpi = 300)

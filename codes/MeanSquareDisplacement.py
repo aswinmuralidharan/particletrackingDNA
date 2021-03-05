@@ -127,6 +127,7 @@ def imsd(filename, mpp, fps, video, directory, max_lagtime=100):
     trajec = []
     msds = []
     alpha = []
+    alpha2 = []
     index=0
     """Looping through the dataframe with the position data"""
     for pid, ptraj in traj.groupby('particle'):
@@ -143,10 +144,12 @@ def imsd(filename, mpp, fps, video, directory, max_lagtime=100):
             values to reject trajectories if needed
             """
             alphatemp, r_squaredtemp = powerfit(msdtemp, 0, 8)
+            alphatemp2, r_squaredtemp2 = powerfit(msdtemp, 20,50)
         if r_squaredtemp > 0:
             if alphatemp[0] > 0:
                 # Append results to list
                 alpha.append(alphatemp)
+                alpha2.append(alphatemp2)
                 msds.append(msdtemp)
                 trajec.append(trajectory(pos, pid, max_lagtime,video, pos_columns))
                 ids.append(index)
@@ -162,14 +165,15 @@ def imsd(filename, mpp, fps, video, directory, max_lagtime=100):
     resultstraj.set_index(time, inplace=True)
     resultstraj.index.name = 'Time [s]'
     alpha = pd.DataFrame(alpha)
-    return resultsmsd, resultstraj, alpha
+    alpha2 = pd.DataFrame(alpha2)
+    return resultsmsd, resultstraj, alpha, alpha2
 
 Filepath = '/Volumes/Samsung_T5/Experimental Data/Hans'
 i = 0
-#bpc = ['100bp', '250bp', '500bp']
-#bpcs = ['100 bp', '250 bp', '500 bp']
-bpc = ['500bp','MCF7500bp', 'MCF10A500bp']
-bpcs = ['CHO 500 bp','MCF7 500 bp', 'MCF10A 500 bp']
+bpc = ['100bp', '250bp', '500bp']
+bpcs = ['100 bp', '250 bp', '500 bp']
+#bpc = ['500bp','MCF7500bp', 'MCF10A500bp']
+#bpcs = ['CHO 500 bp','MCF7 500 bp', 'MCF10A 500 bp']
 
 """
 Initialize plots. Change as necessary
@@ -200,6 +204,7 @@ for bp in bpc:
     video = 0
     Trajcollected = []
     alphacollected = []
+    alphacollected2 = []
     msdcolumnscollected = []
     bps = bpcs[i]
     """
@@ -209,7 +214,7 @@ for bp in bpc:
     
     for filename in os.listdir(directory):
         if not filename.startswith('.'):
-            meansquaredis, traj, alpha = imsd(os.path.join(directory, filename), mpp, fps, video, directory2, max_lagtime)
+            meansquaredis, traj, alpha, alpha2 = imsd(os.path.join(directory, filename), mpp, fps, video, directory2, max_lagtime)
             MSDcolumns = [i + currentlength for i in range(1, len(meansquaredis.columns) + 1)]
             if currentlength == 0:
                 MSDcollected_df = pd.DataFrame(meansquaredis, columns= np.arange(0,len(meansquaredis.columns) + 1))
@@ -217,6 +222,7 @@ for bp in bpc:
                 MSDcollected_df[MSDcolumns] = meansquaredis
             Trajcollected.append(traj)
             alphacollected.append(alpha)
+            alphacollected2.append(alpha2)
             video += 1
             currentlength = len(MSDcollected_df.columns)
             msdcolumnscollected.append(MSDcolumns)
@@ -224,6 +230,7 @@ for bp in bpc:
     Trajcollected_df = pd.concat(Trajcollected)
     Trajcollected_df = Trajcollected_df.dropna(axis = 'columns', how = 'all')
     Alphacollected_df = pd.concat(alphacollected)
+    Alphacollected2_df = pd.concat(alphacollected2)
     totaltracks = len(MSDcollected_df.columns)
     """
     Plotting the mean square displacement as ensemble average and individual
@@ -266,9 +273,13 @@ for bp in bpc:
     x = np.arange(0,100)/10
     y = np.array(MSDcollected_df.mean(axis=1))
     pars1, cov1 = curve_fit(f = power_law, xdata = x[20:50], ydata = y[20:50], p0=[0, 0], bounds=(-np.inf, np.inf))
-    print(pars1)
+    #print(pars1)
     pars2, cov2 = curve_fit(f = power_law, xdata = x[0:8], ydata = y[0:8], p0=[0, 0], bounds=(-np.inf, np.inf))
-    print(pars2)
+    #print(pars2)
+    print(Alphacollected_df.mean())
+    print(Alphacollected_df.sem())
+    print(Alphacollected2_df.mean())
+    print(Alphacollected2_df.sem())
     i+=1
 fig1.tight_layout()
 fig1.savefig(directory3 + '/MSD.png',dpi=300)
